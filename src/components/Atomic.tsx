@@ -25,7 +25,9 @@ export const Icon = styled.div<{ hoverable?: boolean }>`
 	svg {
 		fill: currentColor;
 		width: 100%;
-		height: 100%;we
+		height: 100%;
+		transform: rotate(-90deg);
+  		transform-origin: center; /* ensures it rotates around its center */
 	}
 `;
 

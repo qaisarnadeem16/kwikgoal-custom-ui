@@ -584,7 +584,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                         alignItems: "center",
                         justifyContent: "center",
                         fontFamily: "roboto",
-                        textDecoration: "underline",
+                        //textDecoration: "underline",
+                        marginTop: 20
                       }}
                     >
                       {selectedAttribute?.code === "Shelter Colors" && (
@@ -644,7 +645,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                     alignItems: "center",
                     justifyContent: "center",
                     fontFamily: "roboto",
-                    textDecoration: "underline",
+                    //textDecoration: "underline",
                   }}
                 >
                   {selectedAttribute?.code === "Shelter Colors" && (
