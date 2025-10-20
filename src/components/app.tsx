@@ -141,7 +141,6 @@ const App: FunctionComponent<{}> = () => {
             />
           </Layout>
         )}
-
         {/* {(isLoading || isSceneLoading || isAssetsLoading) && <LoadingOverlay />} */}
         <DialogsRenderer />
       </div>
