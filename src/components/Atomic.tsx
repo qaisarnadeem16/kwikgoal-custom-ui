@@ -1,4 +1,4 @@
-aimport styled, { css } from 'styled-components/macro';
+import styled, { css } from 'styled-components/macro';
 import Carousel from 'nuka-carousel';
 
 export const CarouselContainer = styled(Carousel)`
