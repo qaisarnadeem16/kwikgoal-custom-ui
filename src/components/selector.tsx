@@ -738,6 +738,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                                             style={{
                                               position: "absolute",
                                               top: "100%",
+                                              fontSize: "14px",
                                             }}
                                           >
                                             {atrOpts.id === selectedOptionId

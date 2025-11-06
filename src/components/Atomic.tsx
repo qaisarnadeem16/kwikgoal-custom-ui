@@ -101,12 +101,12 @@ export const Button = styled.button<{
 	align-items: center;
 	width: ${(props) => (props.isFullWidth ? '100%' : props.outline ? '60px' : props.primary ? '200px' : '60px')};
 	background-color: ${(props) => (props.primary ? '#297ca3' : 'white')};
-	color: ${(props) => (props.outline ? 'black' : props.primary ? 'white' : '#297CA3')};
+	color: ${(props) => (props.outline ? 'black' : props.primary ? 'white' : 'black')};
 	min-height: 38px;
 	padding: ${(props) => (props.outline ? '' : '5px 10px 5px 10px')};
 	text-align: center;
 	text-transform: ${(props) => (props.uppercase ? 'uppercase' : 'none')};
-	border: ${(props) => (props.outline ? '1px solid #297CA3' : '1px solid #297CA3')};
+	border: ${(props) => (props.outline ? '1px solid #297CA3' : '1px solid black')};
 	cursor: ${(props) => (!props.disabled ? 'pointer' : 'auto')};
 	border-radius: 4px;
 
@@ -120,7 +120,8 @@ export const Button = styled.button<{
 		!props.disabled &&
 		`
       &:hover {
-        background-color: ${props.outline ? 'white' : props.primary ? '#297ca3' : '#297ca3'};
+        /*background-color: ${props.outline ? 'white' : props.primary ? '#297ca3' : '#297ca3'};*/
+		background-color: ${props.outline ? 'white' : props.primary ? 'black' : 'black'};
         border: ${props.outline ? '1px solid black' : '1px solid #4b6074'};
         color: ${props.outline ? 'black' : 'white'};
       }
@@ -229,9 +230,16 @@ export const AddToCartButton = styled(Button)`
 	position: relative;
 	right: 10%;
 	min-width: 280px;
-	background-color: #297ca3;
+	/*background-color: #297ca3;*/
+	background-color: #cf3339;
+	border-color: #cf3339;
+	border:0
 	font-family: 'Roboto';
 	font-size: 18px;
+
+	&:hover {
+		background-color: black;
+	}
 `;
 
 export const TooltipContent = styled.div`
