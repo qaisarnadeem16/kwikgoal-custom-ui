@@ -122,8 +122,7 @@ const App: FunctionComponent<{}> = () => {
                 justifyContent: "center",
                 // gridArea: "1 / 2 / 12 / 1",
                 //backgroundColor: "rgb(249 246 248)",
-                //backgroundColor: "#f2f2f2",
-                backgroundColor: "#ff0000"
+                backgroundColor: "#f2f2f2"
               }}
             >
               <div

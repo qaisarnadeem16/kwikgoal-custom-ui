@@ -28,6 +28,12 @@ export const Icon = styled.div<{ hoverable?: boolean }>`
 		transform: rotate(-90deg);
   		transform-origin: center; /* ensures it rotates around its center */
 	}
+	
+	svg path {
+		fill: currentColor !important;
+		stroke: currentColor !important;
+	}
+
 `;
 
 export const TextArea = styled.textarea`
