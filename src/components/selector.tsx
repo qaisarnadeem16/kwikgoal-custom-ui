@@ -648,11 +648,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                     //textDecoration: "underline",
                   }}
                 >
-                  {selectedAttribute?.code === "Shelter Colors" && (
+                  {/* {selectedAttribute?.code === "Shelter Colors" && (
                     <h5 style={{ paddingBottom: "16px" }}>
                       <span>Select Color From Palette</span>
                     </h5>
-                  )}
+                  )} */}
                   {selectedGroup &&
                     selectedGroup.attributes &&
                     selectedGroup.attributes.length > 0 && (
@@ -817,10 +817,9 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                       })}
                   </List>
 
-
                   <div>
                     <List>
-                      {selectedGroup &&
+                      {/* {selectedGroup &&
                         selectedGroup.attributes &&
                         // selectedGroup.attributes?.name =! 'Shelter Colors' &&
                         selectedGroup.attributes.map((opts, i) => {
@@ -857,10 +856,10 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                             // Ensure map always returns something, even if it's null
                             return null;
                           }
-                        })}
+                        })} */}
                     </List>
                   </div>
-
+                  
                 </div>
               </div>
             )}

@@ -71,8 +71,8 @@ html,body {
   position: absolute;
   padding-top: 1px;  
   width: 100%;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
+  /*margin-bottom: 24px;*/
+  padding-bottom: 8px;
 }
 
 .animate-wrapper-2 {
