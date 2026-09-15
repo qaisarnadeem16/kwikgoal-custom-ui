@@ -11,7 +11,8 @@ import {
   ListItemImage,
   ListItemImageNoCarousel,
   ListItemColorBig,
-  ListItemImageBig
+  ListItemImageBig,
+  PillOption
 } from "./list";
 import { PreviewContainer, BlurOverlay } from "./previewContainer";
 import Tray from "./Tray";
@@ -19,7 +20,25 @@ import TrayPreviewOpenButton from "./TrayPreviewOpenButton";
 import MenuTriggerButton from "./MenuTriggerButton";
 import ProgressBarLoadingOverlay from "./widgets/ProgressBarLoadingOverlay";
 import Designer from "./layouts/Designer";
-import { GroupItem, GroupIcon } from "./layouts/LayoutStyled";
+import {
+  GroupItem,
+  GroupIcon,
+  ViewerControlsPanel,
+  ViewerControlGroup,
+  ViewerControlLabel,
+  ZoomButtonStack,
+  ZoomButton,
+  ToggleSwitchWrap,
+  ToggleSwitch,
+  ToggleSwitchState,
+  CustomizePanelsButton,
+  BottomBar,
+  BottomBarMenu,
+  BottomBarStepNav,
+  BottomBarStepArrow,
+  BottomBarStepLabel,
+  BottomBarActions,
+} from "./layouts/LayoutStyled";
 import { createPortal } from "react-dom";
 import useStore from "../Store";
 import { T } from "../Helpers";
@@ -65,10 +84,12 @@ const validCodes: any = ['Seats', 'Shelter', 'Logo', 'Wheels', "Without Wheel Se
 
 interface TrayPreviewOpenButton3DProps {
   trayPreviewOpenButton3DFunc: (data: any) => void;
+  viewerOverlayEl?: HTMLDivElement | null;
 }
 
 const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   trayPreviewOpenButton3DFunc,
+  viewerOverlayEl,
 }) => {
   const {
     isSceneLoading,
@@ -133,6 +154,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   const [isNextDisabled, setIsNextDisabled] = useState<any | null>(false)
 
   const [selectedFilteredAreas, setSelectedFilteredAreas] = useState<number>(0);
+
+  const [isBackgroundOn, setIsBackgroundOn] = useState<boolean>(false);
 
 
   const updateSelectedFilter = (id: number) => {
@@ -334,7 +357,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   const containerStyles = {
     overflow: "auto",
     width: "100%",
-    height: !selectedTrayPreviewOpenButton ? "12rem" : "70px",
+    height: !selectedTrayPreviewOpenButton ? "370px" : "70px",
   };
   const getTooltipDetail = (name: string) => {
     switch (name) {
@@ -362,180 +385,134 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
   console.log('selectedFilteredAreas', selectedFilteredAreas)
   // console.log('selectOptionName', selectedOptionName)
-  return (
+  const viewerOverlayContent = (
     <>
-      <div className="top-nav">
-        <div className="body-3" id="product-info">
-          <span>{productName}</span>
-          {/* <span>USD {price}</span> */}
-        </div>
-      </div>
-
       {!isMobile && !isTrayOpen ? (
-        <div style={{ position: "absolute", top: "36%", bottom: "45%" }}>
-          <div className="dgqSKi" onClick={zoomIn}>
-            <SearchPlusSolid />
-          </div>
+        <ViewerControlsPanel>
+          <ViewerControlGroup>
+            <ViewerControlLabel>View</ViewerControlLabel>
+            <ZoomButtonStack>
+              <ZoomButton onClick={zoomIn} aria-label="Zoom in">
+                <SearchPlusSolid />
+              </ZoomButton>
+              <ZoomButton onClick={zoomOut} aria-label="Zoom out">
+                <SearchMinusSolid />
+              </ZoomButton>
+            </ZoomButtonStack>
+          </ViewerControlGroup>
 
-          <div className="gwevdV" onClick={zoomOut}>
-            <SearchMinusSolid />
-          </div>
-        </div>
+          <ViewerControlGroup>
+            <ViewerControlLabel>Background</ViewerControlLabel>
+            <ToggleSwitchWrap>
+              <ToggleSwitch
+                isOn={isBackgroundOn}
+                onClick={() => setIsBackgroundOn(!isBackgroundOn)}
+                aria-label="Toggle background"
+                aria-pressed={isBackgroundOn}
+              />
+              <ToggleSwitchState>{isBackgroundOn ? "On" : "Off"}</ToggleSwitchState>
+            </ToggleSwitchWrap>
+          </ViewerControlGroup>
+        </ViewerControlsPanel>
       ) : (
         ""
       )}
 
-      {/* <GroupItem   */}
-
-      {/* Personalize A */}
+      {/* Personalize / Customize Panels */}
       {!isMobile && (
-        <div
-          className="iHdtWA group-item selected"
-          style={{
-            position: "absolute",
-            top: "5%",
-            right: "1%",
-            cursor: "pointer",
-            marginLeft: "20px",
-            width: "32vw",
-          }}
-        >
-          <div
-            className="button-53"
+        <>
+          <CustomizePanelsButton
             onClick={() => setSelectedPersonalize(!selectedPersonalize)}
           >
-            <span
+            {"Customize Panels"}
+          </CustomizePanelsButton>
+          {selectedPersonalize ? (
+            <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "7px",
+                position: "absolute",
+                top: "5%",
+                right: "1%",
+                width: "32vw",
               }}
             >
-              {"Customize"}
-            </span>
-          </div>
-          {selectedPersonalize ? (
-            <Designer togglePersonalize={togglePersonalize} selectedPersonalize={selectedPersonalize}
-              updateSelectedFilter={updateSelectedFilter} selectedFilteredAreas={selectedFilteredAreas} />
+              <Designer togglePersonalize={togglePersonalize} selectedPersonalize={selectedPersonalize}
+                updateSelectedFilter={updateSelectedFilter} selectedFilteredAreas={selectedFilteredAreas} />
+            </div>
           ) : (
             ""
           )}
-        </div>
+        </>
       )}
+    </>
+  );
 
-      <div className="animate-wrapper-0">
+  return (
+    <>
+      {viewerOverlayEl
+        ? createPortal(viewerOverlayContent, viewerOverlayEl)
+        : viewerOverlayContent}
+
+      <div
+        className="animate-wrapper-0"
+        style={{
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+          overflowY: "auto",
+        }}
+      >
         {/* Personalize A */}
 
         <div style={containerStyles}>
           {/* {groups[currentIndex].name === "MODALITATE IMPRIMARE" && (!hasTypeZero) ? null : ( */}
-          <div className="tray-header">
-            {/* <TrayPreviewOpenButton
-              width={width}
-              trayPreviewOpenButton={trayPreviewOpenButton}
-              selectedTrayPreviewOpenButton={selectedTrayPreviewOpenButton}
-              selectTrayPreviewOpenButton={selectTrayPreviewOpenButton}
-            /> */}
+          <BottomBar>
+            <BottomBarMenu>
+              {"Menu"}
+            </BottomBarMenu>
 
-            <div
-              style={{
-                display: "flex",
-                width: "420px",
-                top: "50%",
-                left: "50%",
-                height: "auto",
-                margin: "0px auto",
-                position: "absolute",
-                transform: "translate(-50%, -50%)",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {currentIndex + 1 !== 1 ?
-                <button
-                  className="previous-customization"
-                  onClick={handleLeftClick}
-                >
-                  <div className="mc-prev">
-                    <AngleLeftSolid />
-                    Back
-                  </div>
-                </button> : ''}
+            <BottomBarStepNav>
+              <BottomBarStepArrow
+                disabled={currentIndex + 1 === 1}
+                onClick={handleLeftClick}
+                aria-label="Previous"
+              >
+                <AngleLeftSolid />
+              </BottomBarStepArrow>
 
-              {/* {!(selectedOptionName === "Add" && groups[currentIndex]?.name === "Shelter Logo") && ( */}
-              <div className="tray-header-1">
-                <div
-                  style={{
-                    position: "absolute",
-                    padding: "0px",
-                    width: "100%",
-                  }}
-                >
-                  <div className="active-marketing-component-name">
-                    <span
-                      style={{
-                        whiteSpace: "nowrap",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                        lineHeight: "28px",
-                        cursor: "pointer",
-                        display: 'flex',
-                        alignItems: "center",
-                        gap: '10px'
-                      }}
-                    >
-                      {/* Group name dynamically displayed */}
-                      {groups[currentIndex]?.name}
+              <BottomBarStepLabel>
+                {"Select: "}
+                {groups[currentIndex]?.name}
+              </BottomBarStepLabel>
 
-                      {/* Uncomment and customize tooltip for group details if needed */}
-                      {/* <div
-            style={{ cursor: "pointer" }}
-            data-tooltip-id={`tooltip-${groups[currentIndex]?.id}`}
-            data-tooltip-variant="light"
-            data-tooltip-content={getTooltipDetail(groups[currentIndex]?.name)}
-          >
-            <svg width="24" height="24" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M9 9C9 5.49997 14.5 5.5 14.5 9C14.5 11.5 12 10.9999 12 13.9999" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M12 18.01L12.01 17.9989" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </div> */}
-                    </span>
-                  </div>
+              <Tooltip
+                id={`tooltip-${groups[currentIndex]?.id}`}
+                place="top"
+                style={{
+                  zIndex: 9999,
+                  padding: "8px",
+                  border: "1px solid #000",
+                  borderRadius: "4px",
+                }}
+              />
 
-                  {/* Tooltip styling for future use */}
-                  <Tooltip
-                    id={`tooltip-${groups[currentIndex]?.id}`}
-                    place="top"
-                    style={{
-                      zIndex: 9999,
-                      padding: "8px",
-                      border: "1px solid #000",
-                      borderRadius: "4px",
-                    }}
-                  />
-                </div>
-              </div>
-              {/* )} */}
+              <BottomBarStepArrow
+                disabled={currentIndex + 1 === groups.length - 2}
+                onClick={handleRightClick}
+                aria-label="Next"
+              >
+                <AngleRightSolid />
+              </BottomBarStepArrow>
+            </BottomBarStepNav>
 
-              {currentIndex + 1 !== groups.length - 2 && (
-                <button className="next-customization" onClick={handleRightClick}>
-                  <div className="mc-prev">
-                    Next
-                    <AngleRightSolid />
-                  </div>
-                </button>
-              )}
-
-            </div>
-
-            {!isMobile && <Footer />}
+            <BottomBarActions>
+              {!isMobile && <Footer />}
+            </BottomBarActions>
 
             {/* Closed on request of Paul */}
             {/* <MenuTriggerButton width={width} toggleTray={toggleTray} /> */}
-          </div>
+          </BottomBar>
           {/* )} */}
-          <br />
 
           {/* <List>
             {groups.map(group => {
@@ -545,7 +522,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
             })}
         </List> */}
 
-          <div className={`animate-wrapper${isTrayOpen ? "-2 show" : ""}`}>
+          <div style={{ marginTop: 28 }} className={`animate-wrapper${isTrayOpen ? "-2 show" : ""}`}>
             {isTrayOpen && !selectedTrayPreviewOpenButton && (
               <Tray
                 groupNameList={selectedGroupList}
@@ -718,6 +695,20 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                                   opts.enabled &&
                                   opts.options.map((atrOpts) => {
                                     if (atrOpts.enabled) {
+                                      if (!atrOpts.imageUrl) {
+                                        return (
+                                          <PillOption
+                                            onClick={() => {
+                                              selectOption(atrOpts.id);
+                                              selectOptionId(atrOpts.id);
+                                              selectOptionName(atrOpts.name);
+                                            }}
+                                            selected={atrOpts.selected}
+                                          >
+                                            {atrOpts.name}
+                                          </PillOption>
+                                        );
+                                      }
                                       return (
                                         <ListItemColorBig
                                           onClick={() => {

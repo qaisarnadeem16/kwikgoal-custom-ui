@@ -259,6 +259,36 @@ export const ListItemImageNoCarousel = styled.img<{ selected?: any }>`
 `;
 
 
+export const PillOption = styled.li<{ selected?: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    padding: 10px 22px;
+    margin: 6px;
+    min-width: 64px;
+    border-radius: 6px;
+    border: 1px solid #1a1a1a;
+    background-color: ${props => props.selected ? '#1a1a1a' : '#ffffff'};
+    color: ${props => props.selected ? '#ffffff' : '#1a1a1a'};
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+        border-color: #297ca3;
+        color: ${props => props.selected ? '#ffffff' : '#297ca3'};
+    }
+
+    @media screen and (max-width: 568px) {
+        padding: 8px 14px;
+        font-size: 13px;
+        min-width: 52px;
+    }
+`;
+
 export const ListItemImageNoCarouselBig = styled.img<{ selected?: any }>`
     position: relative;
     width: 100px;

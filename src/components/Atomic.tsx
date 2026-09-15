@@ -227,18 +227,25 @@ export const ZoomOutIcon = styled(Icon)`
 `;
 
 export const AddToCartButton = styled(Button)`
-	position: relative;
-	right: 10%;
-	min-width: 280px;
+	min-width: 180px;
 	/*background-color: #297ca3;*/
 	background-color: #cf3339;
 	border-color: #cf3339;
-	border:0
+	border: 0;
 	font-family: 'Roboto';
-	font-size: 18px;
+	font-size: 15px;
+	text-transform: uppercase;
+	font-weight: 600;
+	border-radius: 6px;
+	min-height: 42px;
 
 	&:hover {
 		background-color: black;
+	}
+
+	@media (max-width: 1024px) {
+		min-width: 130px;
+		font-size: 12px;
 	}
 `;
 

@@ -324,33 +324,19 @@ export const FooterContainer = styled.div`
 	background-color: transparent;
 	display: flex;
 	flex-direction: row;
-	height: 70px;
-	padding-top: 0px;
-	margin-right: 15em;
-	width: 26px;
-	padding-right: 5em;
-	@media screen and (max-width: 568) {
-		height: 70px;
-	}
+	align-items: center;
+	height: auto;
 `;
 
 export const FooterRightElementsContainer = styled.div`
 	background: transparent;
 	display: flex;
-	justify-content: start;
-	width: 100%;
-	height: 70px;
-	min-height: 70px;
+	justify-content: flex-end;
 	background-color: transparent;
 	flex-direction: row;
 	grid-gap: 10px;
-	align-items: flex-start;
-	padding: 0px 0px 0px 0em;
+	align-items: center;
 	font-size: 14px;
-	width: 26px;
-	@media (max-width: 1024px) {
-		min-height: 70px;
-	}
 `;
 
 export const PriceContainer = styled.div<{ isMobile?: boolean }>`
@@ -439,6 +425,260 @@ export const TopRightIcons = styled.div`
 	justify-content: center;
 	z-index: 3;
 	gap: 20px;
+`;
+
+export const HeaderBar = styled.div`
+	display: flex;
+	align-items: center;
+	height: 64px;
+	min-height: 64px;
+	width: 100%;
+	padding: 0 24px;
+	background-color: #ffffff;
+	border-bottom: 1px solid #1a1a1a;
+	box-sizing: border-box;
+	z-index: 5;
+
+	@media (max-width: 1024px) {
+		height: 52px;
+		min-height: 52px;
+		padding: 0 16px;
+	}
+`;
+
+export const HeaderTitle = styled.h1`
+	margin: 0;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 800;
+	font-style: italic;
+	font-size: 22px;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	color: #111111;
+
+	@media (max-width: 1024px) {
+		font-size: 16px;
+	}
+`;
+
+export const ViewerControlsPanel = styled.div`
+	position: absolute;
+	left: 24px;
+	top: 32px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	z-index: 4;
+	font-family: 'Roboto', sans-serif;
+
+	@media (max-width: 1024px) {
+		left: 12px;
+		top: 16px;
+		gap: 16px;
+	}
+`;
+
+export const ViewerControlGroup = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+`;
+
+export const ViewerControlLabel = styled.span`
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	color: #1a1a1a;
+`;
+
+export const ZoomButtonStack = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+`;
+
+export const ZoomButton = styled.button`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	color: #1a1a1a;
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	&:hover {
+		color: #297ca3;
+	}
+`;
+
+export const ToggleSwitchWrap = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+`;
+
+export const ToggleSwitch = styled.button<{ isOn?: boolean }>`
+	position: relative;
+	width: 44px;
+	height: 24px;
+	border-radius: 14px;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	background-color: #d9d9d9;
+	transition: background-color 0.2s ease;
+
+	${(props) =>
+		props.isOn &&
+		`
+		background-color: #297ca3;
+	`}
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 3px;
+		left: ${(props) => (props.isOn ? "23px" : "3px")};
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		background-color: #1a1a1a;
+		transition: left 0.2s ease;
+	}
+`;
+
+export const ToggleSwitchState = styled.span`
+	font-size: 11px;
+	color: #6b6b6b;
+	text-transform: uppercase;
+`;
+
+export const CustomizePanelsButton = styled.button`
+	position: absolute;
+	right: 24px;
+	bottom: 24px;
+	z-index: 4;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px 24px;
+	background-color: #ffffff;
+	border: 1px solid #1a1a1a;
+	border-radius: 6px;
+	font-family: 'Roboto', sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	color: #1a1a1a;
+	cursor: pointer;
+
+	&:hover {
+		background-color: #f2f2f2;
+	}
+
+	@media (max-width: 1024px) {
+		right: 12px;
+		bottom: 12px;
+		padding: 10px 16px;
+		font-size: 12px;
+	}
+`;
+
+export const BottomBar = styled.div`
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	min-height: 72px;
+	padding: 12px 24px;
+	background-color: #ffffff;
+	border-top: 1px solid #1a1a1a;
+	box-sizing: border-box;
+	font-family: 'Roboto', sans-serif;
+	z-index: 5;
+	gap: 16px;
+	flex-wrap: wrap;
+
+	@media (max-width: 1024px) {
+		padding: 10px 12px;
+		min-height: 60px;
+	}
+`;
+
+export const BottomBarMenu = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	color: #1a1a1a;
+	white-space: nowrap;
+
+	svg {
+		width: 18px;
+		height: 18px;
+	}
+`;
+
+export const BottomBarStepNav = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	flex: 1;
+`;
+
+export const BottomBarStepArrow = styled.button<{ disabled?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	color: #1a1a1a;
+	visibility: ${(props) => (props.disabled ? "hidden" : "visible")};
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	&:hover {
+		color: #297ca3;
+	}
+`;
+
+export const BottomBarStepLabel = styled.span`
+	font-size: 15px;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	color: #1a1a1a;
+	text-align: center;
+	white-space: nowrap;
+`;
+
+export const BottomBarActions = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 12px;
 `;
 
 export const ViewerContainer = styled.div`

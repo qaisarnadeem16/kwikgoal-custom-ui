@@ -11,6 +11,7 @@ import { DialogsRenderer } from "./dialog/Dialogs";
 import useStore from "../Store";
 import LayoutMobile from './LayoutMobile';
 import FooterMobile from "./layouts/FooterMobile";
+import { HeaderBar, HeaderTitle } from "./layouts/LayoutStyled";
 
 
 // const Layout = styled.div`
@@ -31,11 +32,10 @@ const Layout = styled.div`
   // flex-direction: column;
 
   position: relative;
-  display: grid;
-  grid-template-rows: 0fr auto auto;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   width: 100%;
-  /* background-color: red; */
   overflow: hidden;
 `;
 
@@ -70,6 +70,10 @@ const App: FunctionComponent<{}> = () => {
   const [selectedTrayPreviewOpenButton3D, selectTrayPreviewOpenButton3D] =
     useState<boolean | null>(false);
 
+  // Anchor element the viewer overlay controls (zoom/background/customize) portal into,
+  // so they stay positioned against the viewer box instead of the whole page.
+  const [viewerOverlayEl, setViewerOverlayEl] = useState<HTMLDivElement | null>(null);
+
   const trayPreviewOpenButton3DFunc = (
     selectedTrayPreviewOpenButton3D: any
   ) => {
@@ -90,7 +94,11 @@ const App: FunctionComponent<{}> = () => {
 
   return (
     <ZakekeProvider environment={zakekeEnvironment}>
-      <div id="modal-container" className="css-1q5ttm8">
+      <div id="modal-container" className="css-1q5ttm8" style={{ flexDirection: "column" }}>
+        <HeaderBar>
+          <HeaderTitle>Custom Shelter Design</HeaderTitle>
+        </HeaderBar>
+        <div style={{ position: "relative", flex: 1, minHeight: 0, display: "flex" }}>
 
         {isMobile && <LayoutMobile />}
         {/* {isMobile && (
@@ -116,33 +124,31 @@ const App: FunctionComponent<{}> = () => {
         {!isMobile && (
           <Layout>
             <div
+              ref={setViewerOverlayEl}
               style={{
-                display: "grid",
-                alignItems: "center",
-                justifyContent: "center",
-                // gridArea: "1 / 2 / 12 / 1",
-                //backgroundColor: "rgb(249 246 248)",
-                backgroundColor: "#f2f2f2"
+                position: "relative",
+                width: "100%",
+                height: "70%",
+                flexShrink: 0,
+                backgroundColor: "#f2f2f2",
               }}
             >
               <div
                 className="ThreeDRenderer"
-                style={
-                  selectedTrayPreviewOpenButton3D
-                    ? { width: "75vw", height: "75vh" }
-                    : { width: "80vw", height: "80vh", marginTop: "26px" }
-                }
+                style={{ width: "100%", height: "100%" }}
               >
                 <ZakekeViewer />
               </div>
             </div>
             <Selector
               trayPreviewOpenButton3DFunc={trayPreviewOpenButton3DFunc}
+              viewerOverlayEl={viewerOverlayEl}
             />
           </Layout>
         )}
         {/* {(isLoading || isSceneLoading || isAssetsLoading) && <LoadingOverlay />} */}
         <DialogsRenderer />
+        </div>
       </div>
       {/* </div> */}
     </ZakekeProvider>
