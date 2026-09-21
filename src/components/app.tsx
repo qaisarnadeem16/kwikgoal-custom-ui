@@ -128,7 +128,7 @@ const App: FunctionComponent<{}> = () => {
               style={{
                 position: "relative",
                 width: "100%",
-                height: "70%",
+                height: "55%",
                 flexShrink: 0,
                 backgroundColor: "#f2f2f2",
               }}

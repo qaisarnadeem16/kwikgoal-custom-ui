@@ -7,9 +7,11 @@ export const List = styled.ul<{isShelterColor?: boolean}>`
     display: flex;
     align-items: center;
     margin-top: 5px;
-    margin-bottom: 17px; 
+    gap: 5px;
+    margin-bottom: 17px;
     // border-radius: 50px;
-    white-space: nowrap;
+    white-space: ${props => props.isShelterColor ? 'normal' : 'nowrap'};
+    flex-wrap: ${props => props.isShelterColor ? 'wrap' : 'nowrap'};
     justify-content: center;
     // border-top: ${props => props.isShelterColor ? '1.5px solid gray' : ''};
 
@@ -140,7 +142,7 @@ export const ListItemColor = styled.li<{ selected?: boolean, selectedColor?: any
     padding: 0px 10px;
     cursor: pointer;
     margin: 0 11px;
-    border-radius: 100%;
+    // border-radius: 100%;
     width: 40px;
     height: 40px;
     white-space: nowrap;  
@@ -216,7 +218,7 @@ export const ListItemColor = styled.li<{ selected?: boolean, selectedColor?: any
     height: 40px;
     object-fit: contain;
     margin: 0px 11px;
-    border-radius: 100%;
+    border-radius: 10%;
     border: 1px solid rgb(168 161 161);
     
     @media screen and (max-width: 568px) {
@@ -259,18 +261,24 @@ export const ListItemImageNoCarousel = styled.img<{ selected?: any }>`
 `;
 
 
-export const PillOption = styled.li<{ selected?: boolean }>`
+export const PillOption = styled.li<{ selected?: boolean; roundedRed?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
     list-style: none;
-    padding: 10px 22px;
+    padding: 10px 32px;
     margin: 6px;
     min-width: 64px;
-    border-radius: 6px;
-    border: 1px solid #1a1a1a;
-    background-color: ${props => props.selected ? '#1a1a1a' : '#ffffff'};
-    color: ${props => props.selected ? '#ffffff' : '#1a1a1a'};
+    border-radius: ${props => props.roundedRed ? '12px' : '6px'};
+    border: ${props => props.roundedRed
+        ? (props.selected ? 'none' : '1px solid #636363')
+        : `1px solid ${props.selected ? '#cf3339' : '#1a1a1a'}`};
+    background-color: ${props => props.roundedRed
+        ? (props.selected ? '#D32F37' : '#ffffff')
+        : (props.selected ? '#cf3339' : '#ffffff')};
+    color: ${props => props.roundedRed
+        ? (props.selected ? '#ffffff' : '#636363')
+        : (props.selected ? '#ffffff' : '#1a1a1a')};
     font-family: 'Roboto', sans-serif;
     font-size: 15px;
     font-weight: 500;
@@ -278,14 +286,204 @@ export const PillOption = styled.li<{ selected?: boolean }>`
     white-space: nowrap;
 
     &:hover {
-        border-color: #297ca3;
-        color: ${props => props.selected ? '#ffffff' : '#297ca3'};
+        border-color: ${props => props.roundedRed ? '#D32F37' : '#cf3339'};
+        color: ${props => props.selected ? '#ffffff' : (props.roundedRed ? '#D32F37' : '#cf3339')};
     }
 
     @media screen and (max-width: 568px) {
         padding: 8px 14px;
         font-size: 13px;
         min-width: 52px;
+    }
+`;
+
+export const PillOptionWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 6px;
+`;
+
+export const PillOptionCaption = styled.span`
+    margin-top: 8px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #8c8c8c;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+`;
+
+export const ColorFamilySection = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 12px 16px;
+`;
+
+export const ColorFamilyHeading = styled.h4`
+    margin: 0 0 30px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: #4a4a4a;
+    text-align: center;
+`;
+
+export const ColorSwatchRow = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+`;
+
+export const ColorSwatch = styled.button<{ selected?: boolean; bgColor?: string; bgImage?: string; small?: boolean }>`
+    width: ${props => props.small ? '40px' : '70px'};
+    height: ${props => props.small ? '40px' : '70px'};
+    border-radius: ${props => props.small ? '8px' : '12px'};
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: ${props => props.bgColor || '#e0e0e0'};
+    background-image: ${props => props.bgImage ? `url(${props.bgImage})` : 'none'};
+    background-color: ${props => props.bgColor || '#e0e0e0'};
+    background-image: ${props => props.bgImage ? `url(${props.bgImage})` : 'none'};
+    background-size: cover;
+    background-position: center;
+    border: 1px solid #d9d9d9;
+    outline: ${props => props.selected ? '2px solid #1a1a1a' : 'none'};
+    outline-offset: 2px;
+
+    @media screen and (max-width: 568px) {
+        width: ${props => props.small ? '32px' : '52px'};
+        height: ${props => props.small ? '32px' : '52px'};
+    }
+`;
+
+export const ColorSwatchItem = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+`;
+
+export const ColorSwatchLabel = styled.span`
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    color: #4a4a4a;
+    text-align: center;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`;
+
+export const IconCardItem = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+`;
+
+export const IconCard = styled.button<{ selected?: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background-color: ${props => props.selected ? ' rgb(207, 51, 57)' : 'transparent'};
+    outline: ${props => props.selected ? 'none' : '1px solid #1a1a1a'};
+    // outline-offset: 2px;
+
+    @media screen and (max-width: 568px) {
+        width: 52px;
+        height: 52px;
+    }
+`;
+
+export const IconCardImage = styled.img`
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+`;
+
+export const IconCardLabel = styled.span`
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #4a4a4a;
+    text-align: center;
+    max-width: 90px;
+`;
+
+export const ColorChipItem = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+`;
+
+export const ColorChip = styled.button<{ selected?: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    background-color: ${props => props.selected ? 'transparent' : 'transparent'};
+    border: ${props => props.selected ? '1 px solid #1a1a1a' : '1px solid #d0d0d0'};
+    outline: ${props => props.selected ? '2px solid #1a1a1a' : 'none'};
+    outline-offset: 2px;
+
+    @media screen and (max-width: 568px) {
+        width: 52px;
+        height: 52px;
+    }
+`;
+
+export const ColorChipInner = styled.img<{ selected?: boolean }>`
+    width: ${props => props.selected ? '90%' : '80%'};
+    height: ${props => props.selected ? '90%' : '80%'};
+    object-fit: cover;
+    border-radius: ${props => props.selected ? '12px' : '8px'};
+    transition: width 0.15s ease, height 0.15s ease;
+`;
+
+export const ColorChipLabel = styled.span`
+    font-family: 'Roboto', sans-serif;
+    font-size: 13px;
+    color: #4a4a4a;
+    text-align: center;
+`;
+
+export const ColorFamilyFooter = styled.p`
+    margin: 24px 0 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    color: #4a4a4a;
+    text-align: center;
+`;
+
+export const RalColorsLink = styled.span`
+    color: #cf3339;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+        color: #a82228;
     }
 `;
 

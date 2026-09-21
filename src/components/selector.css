@@ -237,7 +237,7 @@
 .swiper {
   width: 80vw !important;
   height: 64px !important;
-  position: initial !important;
+  /* position: initial !important; */
   /* height: 120% !important  ; */
 }
 .swiper-container{

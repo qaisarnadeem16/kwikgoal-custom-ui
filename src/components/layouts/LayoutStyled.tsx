@@ -188,7 +188,7 @@ export const SelectorMobileContainer = styled.div`
 	justify-content: flex-end;
 	width: 100%;
 	position: relative;
-	overflow: auto;
+	// overflow: auto;
 `;
 
 export const StepsMobileContainer = styled.div`
@@ -617,20 +617,29 @@ export const BottomBar = styled.div`
 	}
 `;
 
-export const BottomBarMenu = styled.div`
+export const BottomBarMenu = styled.button`
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	font-family: 'Roboto', sans-serif;
 	font-size: 14px;
 	font-weight: 600;
 	letter-spacing: 0.5px;
 	text-transform: uppercase;
 	color: #1a1a1a;
 	white-space: nowrap;
+	background: transparent;
+	border: none;
+	padding: 0;
+	cursor: pointer;
 
 	svg {
 		width: 18px;
 		height: 18px;
+	}
+
+	&:hover {
+		color: #297ca3;
 	}
 `;
 
@@ -642,21 +651,20 @@ export const BottomBarStepNav = styled.div`
 	flex: 1;
 `;
 
-export const BottomBarStepArrow = styled.button<{ disabled?: boolean }>`
+export const BottomBarStepArrow = styled.button<{ muted?: boolean }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	width: 24px;
-	height: 24px;
+	height: 20px;
 	padding: 0;
 	border: none;
 	background: transparent;
 	cursor: pointer;
-	color: #1a1a1a;
-	visibility: ${(props) => (props.disabled ? "hidden" : "visible")};
+	color: ${(props) => (props.muted ? "#BCBEC0" : "#292521")};
 
 	svg {
-		width: 16px;
+		width: 20px;
 		height: 16px;
 	}
 
@@ -666,7 +674,8 @@ export const BottomBarStepArrow = styled.button<{ disabled?: boolean }>`
 `;
 
 export const BottomBarStepLabel = styled.span`
-	font-size: 15px;
+	font-family: 'Roboto', sans-serif;
+	font-size: 24px;
 	font-weight: 700;
 	letter-spacing: 0.5px;
 	text-transform: uppercase;
@@ -688,5 +697,134 @@ export const ViewerContainer = styled.div`
 
 	@media (max-width: 1024px) {
 		height: 100%;
+	}
+`;
+
+export const DownloadButton = styled.button`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 60px;
+	min-height: 42px;
+	padding: 0;
+	background-color: #4a4a4a;
+	border: none;
+	border-radius: 6px;
+	color: #ffffff;
+	cursor: pointer;
+
+	svg {
+		width: 18px;
+		height: 18px;
+	}
+
+	&:hover {
+		background-color: #1a1a1a;
+	}
+`;
+
+export const MenuOverlay = styled.div`
+	position: absolute;
+	inset: 0;
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	background-color: #ffffff;
+	font-family: 'Roboto', sans-serif;
+	overflow-y: auto;
+`;
+
+export const MenuOverlayHeader = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 32px 48px 16px;
+
+	@media (max-width: 1024px) {
+		padding: 20px 20px 8px;
+	}
+`;
+
+export const MenuOverlayTitle = styled.h2`
+	margin: 0;
+	font-family: 'Roboto', sans-serif;
+	font-size: 24px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #1a1a1a;
+`;
+
+export const MenuOverlayCloseButton = styled.button`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: #1a1a1a;
+
+	svg {
+		width: 22px;
+		height: 22px;
+	}
+
+	&:hover {
+		color: #cf3339;
+	}
+`;
+
+export const MenuOverlayBody = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	gap: 48px;
+	padding: 8px 48px 48px;
+
+	@media (max-width: 1024px) {
+		padding: 8px 20px 24px;
+		gap: 24px;
+	}
+`;
+
+export const MenuSection = styled.div`
+	flex: 1 1 300px;
+	min-width: 260px;
+`;
+
+export const MenuSectionTitle = styled.h3`
+	margin: 0 0 20px;
+	padding-bottom: 8px;
+	display: inline-block;
+	font-family: 'Roboto', sans-serif;
+	font-size: 16px;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #1a1a1a;
+	border-bottom: 2px solid #1a1a1a;
+`;
+
+export const MenuItemsGrid = styled.div`
+	column-count: 2;
+	column-gap: 40px;
+`;
+
+export const MenuItem = styled.div<{ active?: boolean }>`
+	break-inside: avoid;
+	padding: 12px 0;
+	font-family: 'Roboto', sans-serif;
+	font-size: 16px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	color: ${(props) => (props.active ? '#000000' : '#636363')};
+	font-weight: ${(props) => (props.active ? 700 : 400)};
+	cursor: pointer;
+
+	&:hover {
+		color: #cf3339;
 	}
 `;

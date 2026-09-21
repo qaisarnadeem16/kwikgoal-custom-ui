@@ -52,6 +52,8 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "./LayoutStyled";
+import { PillOption } from "../list";
+import Footer from "./Footer";
 
 import { Tooltip } from 'react-tooltip'
 
@@ -84,12 +86,13 @@ const DesignerContainer = styled.div<{ isMobile?: boolean }>`
   justify-content: center;
   user-select: none;
   width: 100%;
-  padding: 18px 10px 82px;
-  background-color: rgb(235, 237, 242);
+  padding: 24px 24px 32px;
+  background-color: #ffffff;
   height: 34em;
   overflow-y: auto;
   font-family: Roboto, sans-serif;
-  border-radius: 23px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   overflow-y: auto;
 
   ${(props) =>
@@ -111,6 +114,119 @@ const UploadButtons = styled.div`
   flex-direction: column;
   grid-gap: 5px;
   margin: 20px 0px;
+`;
+
+const PopupHeader = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 4px 0 20px;
+  text-align: center;
+`;
+
+const PopupTitle = styled.h2`
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #1a1a1a;
+
+  span {
+    text-transform: none;
+    font-weight: 400;
+  }
+`;
+
+const PopupSubtitle = styled.p`
+  margin: 4px 0 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #6b6b6b;
+`;
+
+const PopupCloseButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #1a1a1a;
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  &:hover {
+    color: #cf3339;
+  }
+`;
+
+const PanelSelectorRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+`;
+
+const ActionButtonsRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin: 16px 0 4px;
+`;
+
+const ActionButton = styled.button<{ disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid ${(props) => (props.disabled ? '#d0d0d0' : '#1a1a1a')};
+  background-color: #ffffff;
+  color: ${(props) => (props.disabled ? '#b0b0b0' : '#1a1a1a')};
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
+  white-space: nowrap;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    border-color: ${(props) => (props.disabled ? '#d0d0d0' : '#cf3339')};
+    color: ${(props) => (props.disabled ? '#b0b0b0' : '#cf3339')};
+  }
+`;
+
+const PopupFooterRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 24px;
 `;
 
 const Area = styled.div<{ selected?: boolean }>`
@@ -696,13 +812,24 @@ const Designer: FC<{
   return (
     <>
 
-      <div onClick={togglePersonalize} style={{ display: 'flex', justifyContent: 'end' }}> Close
-        <Icon> <CloseIcon /></Icon>
-      </div>
       {!moveElements && (
-
-
         <DesignerContainer isMobile={isMobile}>
+          <PopupHeader>
+            <div>
+              <PopupTitle>Custom Panels:</PopupTitle>
+              <PopupSubtitle>Select a Panel or Area of Shelter Frame</PopupSubtitle>
+            </div>
+            <PopupCloseButton onClick={togglePersonalize} aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M4 4L20 20M20 4L4 20"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </PopupCloseButton>
+          </PopupHeader>
           {/* Templates */}
           {!isMobile && templates.length > 1 && (
             <TemplatesContainer>
@@ -777,45 +904,34 @@ const Designer: FC<{
 
 
 
-          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '114px', alignItems: "center", flexFlow: 'wrap' }}>
+          <PanelSelectorRow>
             {finalVisibleAreas.map((area) => (
-              <Area
-                key={area.id}
-                selected={actualAreaId === area.id}
-                onClick={() => {
-                  setActualAreaId(area.id);
-                  if (area) {
-                    updateSelectedFilter(area.id);
-                  }
-                }}
-              >
-                {area.name}
-                <div
-                  style={{
-                    cursor: "pointer",
-                    paddingLeft: "2px"
+              <React.Fragment key={area.id}>
+                <PillOption
+                  roundedRed
+                  style={{ margin: 0 }}
+                  selected={actualAreaId === area.id}
+                  onClick={() => {
+                    setActualAreaId(area.id);
+                    if (area) {
+                      updateSelectedFilter(area.id);
+                    }
                   }}
-                  data-tooltip-id={`tooltip-${area.name.replace(/\s+/g, "-")}`} // Unique id for each group
+                  data-tooltip-id={`tooltip-${area.name.replace(/\s+/g, "-")}`}
                   data-tooltip-variant="light"
-                  data-tooltip-content={getTooltipDetail(area.name)} // Tooltip content based on area name
+                  data-tooltip-content={getTooltipDetail(area.name)}
                 >
-                  {/* <svg width="24" height="24" strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M9 9C9 5.49997 14.5 5.5 14.5 9C14.5 11.5 12 10.9999 12 13.9999" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M12 18.01L12.01 17.9989" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg> */}
-                </div>
+                  {area.name}
+                </PillOption>
 
                 <Tooltip id={`tooltip-${area.name.replace(/\s+/g, "-")}`} place="top" style={{
                   zIndex: 12,
-                  // padding: "8px",
                   border: "1px solid #000",
                   borderRadius: "4px",
                 }} />
-              </Area>
+              </React.Fragment>
             ))}
-
-          </div>
+          </PanelSelectorRow>
 
           {isMobile && translatedTemplates.length > 1 && (
             <SelectContainer>
@@ -905,62 +1021,55 @@ const Designer: FC<{
 
           {(showAddTextButton || showUploadButton || showGalleryButton) && (
             <UploadButtons>
-              {showAddTextButton && (
-                <Button isFullWidth onClick={handleAddTextClick}>
-                  <Icon>
+              <ActionButtonsRow>
+                {showAddTextButton && (
+                  <ActionButton onClick={handleAddTextClick}>
                     <Add />
-                  </Icon>
-                  <span>{T._("Add Text", "Composer")}</span>
-                </Button>
-              )}
+                    <span>{T._("Add Text", "Composer")}</span>
+                  </ActionButton>
+                )}
 
-              {showGalleryButton && (
-                <Button isFullWidth onClick={handleAddImageFromGalleryClick}>
-                  <Icon>
+                {showGalleryButton && (
+                  <ActionButton onClick={handleAddImageFromGalleryClick}>
                     <Add />
-                  </Icon>
-                  <span>{T._("Add Logo", "Composer")}</span>
-                </Button>
-              )}
+                    <span>{T._("Add Logo", "Composer")}</span>
+                  </ActionButton>
+                )}
 
-              {showUploadButton && (
-                <>
-                  <Button
+                {showUploadButton && (
+                  <ActionButton
                     disabled={
                       copyrightMessage &&
                         copyrightMessage.additionalData.enabled
                         ? !copyrightMandatoryCheckbox
                         : false
                     }
-                    isFullWidth
                     onClick={() =>
                       handleUploadImageClick(addItemImage, createImage)
                     }
                   >
-                    <Icon>
-                      <Add />
-                    </Icon>
+                    <Add />
                     <span>
-                      <span>
-                        {itemsFiltered.some(
-                          (item) =>
-                            item.type === 1 &&
-                            isItemEditable(item, currentTemplateArea)
-                        )
-                          ? T._("Upload another image", "Composer")
-                          : T._("Upload image", "Composer")
-                        }{" "}
-                      </span>
+                      {itemsFiltered.some(
+                        (item) =>
+                          item.type === 1 &&
+                          isItemEditable(item, currentTemplateArea)
+                      )
+                        ? T._("Upload another image", "Composer")
+                        : T._("Upload image", "Composer")
+                      }
                     </span>
-                  </Button>
-                  <SupportedFormatsList>
-                    {T._("Supported file formats:", "Composer") +
-                      " " +
-                      supportedFileFormats}
-                  </SupportedFormatsList>
-                </>
-              )}
+                  </ActionButton>
+                )}
+              </ActionButtonsRow>
 
+              {showUploadButton && (
+                <SupportedFormatsList>
+                  {T._("Supported file formats:", "Composer") +
+                    " " +
+                    supportedFileFormats}
+                </SupportedFormatsList>
+              )}
 
               {copyrightMessage && copyrightMessage.visible && (
                 <CopyrightMessage>
@@ -1011,6 +1120,11 @@ const Designer: FC<{
             <CloseEditorButton onClick={onCloseClick}>
               {"OK"}
             </CloseEditorButton>
+          )}
+          {!isMobile && (
+            <PopupFooterRow>
+              <Footer />
+            </PopupFooterRow>
           )}
         </DesignerContainer>
       )}

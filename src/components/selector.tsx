@@ -12,10 +12,27 @@ import {
   ListItemImageNoCarousel,
   ListItemColorBig,
   ListItemImageBig,
-  PillOption
+  PillOption,
+  PillOptionWrapper,
+  PillOptionCaption,
+  ColorFamilySection,
+  ColorFamilyHeading,
+  ColorSwatchRow,
+  ColorSwatch,
+  ColorSwatchItem,
+  ColorSwatchLabel,
+  ColorFamilyFooter,
+  RalColorsLink,
+  IconCardItem,
+  IconCard,
+  IconCardImage,
+  IconCardLabel,
+  ColorChipItem,
+  ColorChip,
+  ColorChipInner,
+  ColorChipLabel
 } from "./list";
 import { PreviewContainer, BlurOverlay } from "./previewContainer";
-import Tray from "./Tray";
 import TrayPreviewOpenButton from "./TrayPreviewOpenButton";
 import MenuTriggerButton from "./MenuTriggerButton";
 import ProgressBarLoadingOverlay from "./widgets/ProgressBarLoadingOverlay";
@@ -38,6 +55,15 @@ import {
   BottomBarStepArrow,
   BottomBarStepLabel,
   BottomBarActions,
+  MenuOverlay,
+  MenuOverlayHeader,
+  MenuOverlayTitle,
+  MenuOverlayCloseButton,
+  MenuOverlayBody,
+  MenuSection,
+  MenuSectionTitle,
+  MenuItemsGrid,
+  MenuItem,
 } from "./layouts/LayoutStyled";
 import { createPortal } from "react-dom";
 import useStore from "../Store";
@@ -55,8 +81,6 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import 'swiper/swiper-bundle.css';
-import { ReactComponent as AngleLeftSolid } from "../assets/icons/angle-left-solid.svg";
-import { ReactComponent as AngleRightSolid } from "../assets/icons/angle-right-solid.svg";
 import Loader from "./Loader";
 
 const dialogsPortal = document.getElementById("dialogs-portal")!;
@@ -81,6 +105,20 @@ const validCodes: any = ['Seats', 'Shelter', 'Logo', 'Wheels', "Without Wheel Se
   "Without Wheel Seats 30ft", "With Wheel Seats 30ft",
 
 ];
+
+const FRAME_COLOR_HEX: { [name: string]: string } = {
+  Green: "#5C8B3A",
+  Blue: "#1E3FCB",
+  Yellow: "#EAC54F",
+  Orange: "#C97B45",
+  White: "#FFFFFF",
+  Red: "#B23A32",
+  Black: "#1A1A1A",
+  Purple: "#5C3A54",
+  Brown: "#7A5230",
+  Gray: "#8B8F94",
+  Grey: "#8B8F94",
+};
 
 interface TrayPreviewOpenButton3DProps {
   trayPreviewOpenButton3DFunc: (data: any) => void;
@@ -107,6 +145,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
     zoomIn,
     zoomOut,
     items,
+    product,
+    isAreaVisible,
   } = useZakeke();
 
 
@@ -162,6 +202,10 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
     setSelectedFilteredAreas(id)
   }
 
+  const handleShelterMenuClick = (name: string) => {
+    groupIdFromFunc(name);
+    toggleTray();
+  };
 
   // Attributes can be in both groups and steps, so show the attributes of step or in a group based on selection
   const attributes = useMemo(
@@ -278,6 +322,33 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
   if (isAssetsLoading || !groups || groups.length === 0) return <Loader />;
 
+  const visibleAreas = product?.areas.filter((area) => isAreaVisible(area.id)) ?? [];
+
+  console.group("DEBUG: groups/attributes/options");
+  groups.forEach((group) => {
+    console.log(`GROUP name="${group.name}" id=${group.id}`);
+    group.attributes.forEach((attr) => {
+      console.log(
+        `  ATTRIBUTE name="${attr.name}" code="${attr.code}" enabled=${attr.enabled}`
+      );
+      attr.options.forEach((opt) => {
+        console.log(
+          `    OPTION name="${opt.name}" selected=${opt.selected} enabled=${opt.enabled} imageUrl=${JSON.stringify(opt.imageUrl)}`
+        );
+      });
+    });
+  });
+  console.groupEnd();
+
+  const handlePanelMenuClick = (name: string) => {
+    const area = visibleAreas.find((a) => a.name === name);
+    if (area) {
+      setSelectedPersonalize(true);
+      updateSelectedFilter(area.id);
+    }
+    toggleTray();
+  };
+
   // console.log(groups[1], groups);
 
   // groups
@@ -359,6 +430,13 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
     width: "100%",
     height: !selectedTrayPreviewOpenButton ? "370px" : "70px",
   };
+  const getShelterPanelCount = (sizeName: string): number | null => {
+    const match = sizeName.match(/(\d+)/);
+    if (!match) return null;
+    const size = parseInt(match[1], 10);
+    return 3 + (size - 9) / 3;
+  };
+
   const getTooltipDetail = (name: string) => {
     switch (name) {
       case "Shelter":
@@ -430,9 +508,10 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
             <div
               style={{
                 position: "absolute",
-                top: "5%",
-                right: "1%",
-                width: "32vw",
+                top: "4%",
+                left: "3%",
+                width: "94%",
+                zIndex: 10,
               }}
             >
               <Designer togglePersonalize={togglePersonalize} selectedPersonalize={selectedPersonalize}
@@ -455,11 +534,12 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
       <div
         className="animate-wrapper-0"
         style={{
-          flex: 1,
-          minHeight: 0,
+          position: "relative",
+          height: "45%",
+          flexShrink: 0,
           display: "flex",
           flexDirection: "column",
-          overflowY: "auto",
+          // overflowY: "auto",
         }}
       >
         {/* Personalize A */}
@@ -467,17 +547,41 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
         <div style={containerStyles}>
           {/* {groups[currentIndex].name === "MODALITATE IMPRIMARE" && (!hasTypeZero) ? null : ( */}
           <BottomBar>
-            <BottomBarMenu>
+            <BottomBarMenu onClick={toggleTray} aria-label="Open menu">
+              <svg width="35" height="22" viewBox="0 0 35 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clipPath="url(#clip0_34_66)">
+                  <path d="M1.5 1.5H33.14" stroke="#636363" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round" />
+                  <path d="M1.5 10.6299H33.14" stroke="#636363" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round" />
+                  <path d="M1.5 19.77H33.14" stroke="#636363" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_34_66">
+                    <rect width="34.64" height="21.27" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
               {"Menu"}
             </BottomBarMenu>
 
             <BottomBarStepNav>
               <BottomBarStepArrow
-                disabled={currentIndex + 1 === 1}
+                muted={currentIndex + 1 === 1}
                 onClick={handleLeftClick}
                 aria-label="Previous"
               >
-                <AngleLeftSolid />
+                <svg width="32" height="26" viewBox="0 0 32 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_2_28)">
+                    <path
+                      d="M0.371449 13.8616C-0.111429 13.3798 -0.130002 12.6571 0.334305 12.1938L12.1648 0.389056C12.6663 -0.1113 13.372 -0.129832 13.8735 0.370525C14.2821 0.759691 14.3749 1.51949 13.8735 2.01985L4.0859 11.8046H30.8671C31.5357 11.8046 31.9814 12.3791 32 12.935C32.0186 13.491 31.5914 14.1767 30.8857 14.1767H4.04876L13.8549 23.9799C14.3378 24.4618 14.3192 25.1845 13.8921 25.6478C13.4835 26.074 12.7034 26.2037 12.2205 25.7034L0.371449 13.8616Z"
+                      fill="currentColor"
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_2_28">
+                      <rect width="32" height="26" fill="white" />
+                    </clipPath>
+                  </defs>
+                </svg>
               </BottomBarStepArrow>
 
               <BottomBarStepLabel>
@@ -497,11 +601,23 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
               />
 
               <BottomBarStepArrow
-                disabled={currentIndex + 1 === groups.length - 2}
+                muted={currentIndex + 1 === groups.length - 2}
                 onClick={handleRightClick}
                 aria-label="Next"
               >
-                <AngleRightSolid />
+                <svg width="32" height="26" viewBox="0 0 32 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_2_31)">
+                    <path
+                      d="M31.6285 12.1383C32.1114 12.6201 32.13 13.3428 31.6657 13.8061L19.8351 25.6108C19.3337 26.1112 18.6279 26.1297 18.1265 25.6294C17.7179 25.2402 17.625 24.4804 18.1265 23.9801L27.9326 14.1768H1.13288C0.464278 14.1768 0.0185438 13.6023 -2.84482e-05 13.0463C-0.0186007 12.4904 0.408561 11.8047 1.11431 11.8047H27.9698L18.1451 2.0385C17.6622 1.55667 17.6808 0.833938 18.1079 0.370645C18.5165 -0.0555848 19.2965 -0.185307 19.7794 0.31505L31.6285 12.1383Z"
+                      fill="currentColor"
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_2_31">
+                      <rect width="32" height="26" fill="white" />
+                    </clipPath>
+                  </defs>
+                </svg>
               </BottomBarStepArrow>
             </BottomBarStepNav>
 
@@ -523,19 +639,17 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
         </List> */}
 
           <div style={{ marginTop: 28 }} className={`animate-wrapper${isTrayOpen ? "-2 show" : ""}`}>
-            {isTrayOpen && !selectedTrayPreviewOpenButton && (
-              <Tray
-                groupNameList={selectedGroupList}
-                toggleFunc={toggleTray}
-                UpdateGroupId={groupIdFromFunc}
-              />
-            )}
             {selectedGroup &&
               !selectedTrayPreviewOpenButton &&
               selectedGroup.steps.length > 0 &&
               !isTrayOpen && (
                 <>
-                  <List>
+                  <List
+                    isShelterColor={
+                      selectedAttribute?.code === "Shelter Colors" ||
+                      selectedAttribute?.code === "Frame Colors"
+                    }
+                  >
                     {selectedGroup.steps.map((step) => {
                       return (
                         <ListItem
@@ -551,74 +665,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                 </>
               )}
 
-            {!selectedTrayPreviewOpenButton && (
+            {!selectedTrayPreviewOpenButton && !isTrayOpen && (
               <div style={{ width: "100%" }}>
-                {width > 400 && (
-                  <>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontFamily: "roboto",
-                        //textDecoration: "underline",
-                        marginTop: 20
-                      }}
-                    >
-                      {selectedAttribute?.code === "Shelter Colors" && (
-                        <h5>Select Color Family</h5>
-                      )}
-                      {selectedAttribute &&
-                        selectedAttribute.code === "Shelter Colors" &&
-                        selectedAttribute.enabled === true &&
-                        selectedAttribute.options.length > 0 && (
-                          <List>
-                            {!selectedTrayPreviewOpenButton &&
-                              selectedAttribute.options.map((option) => {
-                                if (option.enabled === false) return <></>;
-                                return (
-                                  <ListItemColor
-                                    key={option.id}
-                                    onClick={() => {
-                                      selectOption(option.id);
-                                      selectOptionId(option.id);
-                                      selectOptionName(option.name);
-                                    }}
-                                    selected={option.selected}
-                                    selectedColor={selectedColorName}
-                                  >
-                                    {option.imageUrl && (
-                                      <ListItemImageNoCarousel
-                                        src={option.imageUrl}
-                                        onClick={() =>
-                                          selectColorName(option.name)
-                                        }
-                                        selected={option.selected}
-                                      />
-                                    )}
-
-                                    <div
-                                      style={{
-                                        position: "absolute",
-                                        top: "105%",
-                                      }}
-                                    >
-                                      {option.id === selectedOptionId
-                                        ? option.name
-                                        : ""}
-                                    </div>
-                                  </ListItemColor>
-                                );
-                              })}
-                          </List>
-                        )}
-                    </div>
-                  </>
-                )}
-
                 <div
                   style={{
-                    display: "flex",
+                    // display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontFamily: "roboto",
@@ -635,55 +686,152 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                     selectedGroup.attributes.length > 0 && (
                       <List
                         isShelterColor={
-                          selectedAttribute?.code === "Shelter Colors"
+                          selectedAttribute?.code === "Shelter Colors" ||
+                          selectedAttribute?.code === "Frame Colors"
                         }
                       >
+
                         {selectedGroup.attributes.map((opts, i) => {
-                          //  if (opts.code !== 'Seats' && opts.code != 'Shelter' && 
-                          //  opts.code !=  'Logo' && opts.code !=  'Wheels'
-                          //  ) 
-                          if (!validCodes.includes(opts.code)) {
-                            if (opts.options.length <= 9) {
-                              if (opts.enabled) {
-                                return (
-                                  opts.enabled &&
-                                  opts.options.map((atrOpts) => {
-                                    if (atrOpts.enabled) {
-                                      return (
-                                        <ListItemColor
+                          // Frame Colors
+                          if (opts.code === "Frame Colors") {
+                            if (!opts.enabled) return null;
+
+                            return (
+                              <ColorFamilySection key={`frame-colors-${i}`}>
+                                <ColorFamilyHeading>
+                                  Choose From One of Our Color Families
+                                </ColorFamilyHeading>
+
+                                <ColorSwatchRow>
+                                  {opts.options.map((atrOpts) => {
+                                    if (!atrOpts.enabled) return null;
+
+                                    const bgColor =
+                                      FRAME_COLOR_HEX[atrOpts.name] || "#e0e0e0";
+
+                                    return (
+                                      <ColorSwatchItem key={atrOpts.id}>
+                                        <ColorSwatch
+                                          type="button"
+                                          selected={atrOpts.selected}
+                                          bgColor={bgColor}
+                                          bgImage={atrOpts.imageUrl || undefined}
                                           onClick={() => {
                                             selectOption(atrOpts.id);
                                             selectOptionId(atrOpts.id);
                                             selectOptionName(atrOpts.name);
                                           }}
+                                          aria-label={atrOpts.name}
+                                        />
+                                        {atrOpts.selected && (
+                                          <ColorSwatchLabel>
+                                            {atrOpts.name}
+                                          </ColorSwatchLabel>
+                                        )}
+                                      </ColorSwatchItem>
+                                    );
+                                  })}
+                                </ColorSwatchRow>
+
+                                {selectedAttribute &&
+                                  selectedAttribute.code === "Shelter Colors" &&
+                                  selectedAttribute.enabled === true &&
+                                  selectedAttribute.options.length > 0 && (
+                                    <ColorSwatchRow>
+                                      {selectedAttribute.options.map((option) => {
+                                        if (option.enabled === false) return null;
+                                        return (
+                                          <ColorSwatchItem key={option.id}>
+                                            <ColorSwatch
+                                              type="button"
+                                              small
+                                              selected={option.selected}
+                                              bgImage={option.imageUrl || undefined}
+                                              onClick={() => {
+                                                selectOption(option.id);
+                                                selectOptionId(option.id);
+                                                selectOptionName(option.name);
+                                                selectColorName(option.name);
+                                              }}
+                                              aria-label={option.name}
+                                            />
+                                            {option.selected && (
+                                              <ColorSwatchLabel>
+                                                {option.name}
+                                              </ColorSwatchLabel>
+                                            )}
+                                          </ColorSwatchItem>
+                                        );
+                                      })}
+                                    </ColorSwatchRow>
+                                  )}
+
+                                <ColorFamilyFooter>
+                                  View our full list of{" "}
+                                  <RalColorsLink>RAL colors</RalColorsLink>{" "}
+                                  for custom frames.
+                                </ColorFamilyFooter>
+                              </ColorFamilySection>
+                            );
+                          }
+
+                          // Other options
+                          if (!validCodes.includes(opts.code)) {
+                            if (opts.options.length <= 16 && opts.enabled) {
+                              return (
+                                <div
+                                  key={`option-group-${i}`}
+                                  style={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: "16px",
+                                    width: "100%",
+                                    alignItems: "flex-start",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  {opts.options.map((atrOpts) => {
+                                    if (!atrOpts.enabled) return null;
+
+                                    return (
+                                      <ColorChipItem key={atrOpts.id}>
+                                        <ColorChip
+                                          type="button"
                                           selected={atrOpts.selected}
-                                          selectedColor={selectedColorName}
+                                          onClick={() => {
+                                            selectOption(atrOpts.id);
+                                            selectOptionId(atrOpts.id);
+                                            selectOptionName(atrOpts.name);
+                                          }}
+                                          aria-label={atrOpts.name}
                                         >
                                           {atrOpts.imageUrl && (
-                                            <ListItemImage
+                                            <ColorChipInner
                                               src={atrOpts.imageUrl}
+                                              alt={atrOpts.name}
+                                              selected={atrOpts.selected}
                                             />
                                           )}
+                                        </ColorChip>
 
-                                          <div
-                                            style={{
-                                              position: "absolute",
-                                              top: "100%",
-                                            }}
-                                          >
-                                            {atrOpts.id === selectedOptionId
-                                              ? atrOpts.name
-                                              : ""}
-                                          </div>
-                                        </ListItemColor>
-                                      );
-                                    }
-                                  })
-                                );
-                              } else return null;
+                                        {atrOpts.selected && (
+                                          <ColorChipLabel>
+                                            {atrOpts.name}
+                                          </ColorChipLabel>
+                                        )}
+                                      </ColorChipItem>
+                                    );
+                                  })}
+                                </div>
+                              );
                             }
+
+                            return null;
                           }
+
+                          return null;
                         })}
+
 
                         {selectedGroup.attributes.map((opts, i) => {
                           //  if (opts.code === 'Seats' || opts.code === 'Shelter' || 
@@ -695,9 +843,68 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                                   opts.enabled &&
                                   opts.options.map((atrOpts) => {
                                     if (atrOpts.enabled) {
+                                      const isShelterSize = opts.code === "Shelter";
+
+                                      if (isShelterSize) {
+                                        const panelCount = getShelterPanelCount(
+                                          atrOpts.name
+                                        );
+                                        return (
+                                          <PillOptionWrapper key={atrOpts.id}>
+                                            <PillOption
+                                              roundedRed
+                                              style={{ margin: 0 }}
+                                              onClick={() => {
+                                                selectOption(atrOpts.id);
+                                                selectOptionId(atrOpts.id);
+                                                selectOptionName(atrOpts.name);
+                                              }}
+                                              selected={atrOpts.selected}
+                                            >
+                                              {atrOpts.name}
+                                            </PillOption>
+                                            {panelCount !== null && (
+                                              <PillOptionCaption>
+                                                {panelCount} Panels
+                                              </PillOptionCaption>
+                                            )}
+                                          </PillOptionWrapper>
+                                        );
+                                      }
+
+                                      const isWheelsOrSeats =
+                                        opts.code === "Wheels" ||
+                                        opts.code.includes("Seats");
+
+                                      if (isWheelsOrSeats && atrOpts.imageUrl) {
+                                        return (
+                                          <IconCardItem key={atrOpts.id}>
+                                            <IconCard
+                                              type="button"
+                                              selected={atrOpts.selected}
+                                              onClick={() => {
+                                                selectOption(atrOpts.id);
+                                                selectOptionId(atrOpts.id);
+                                                selectOptionName(atrOpts.name);
+                                              }}
+                                              aria-label={atrOpts.name}
+                                            >
+                                              <IconCardImage
+                                                src={atrOpts.imageUrl}
+                                                alt={atrOpts.name}
+                                              />
+                                            </IconCard>
+                                            <IconCardLabel>
+                                              {atrOpts.name}
+                                            </IconCardLabel>
+                                          </IconCardItem>
+                                        );
+                                      }
+
                                       if (!atrOpts.imageUrl) {
                                         return (
                                           <PillOption
+                                            key={atrOpts.id}
                                             onClick={() => {
                                               selectOption(atrOpts.id);
                                               selectOptionId(atrOpts.id);
@@ -850,12 +1057,68 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                         })} */}
                     </List>
                   </div>
-                  
+
                 </div>
               </div>
             )}
           </div>
         </div>
+
+        {isTrayOpen && !selectedTrayPreviewOpenButton && (
+          <MenuOverlay>
+            <MenuOverlayHeader>
+              <MenuOverlayTitle>Menu</MenuOverlayTitle>
+              <MenuOverlayCloseButton onClick={toggleTray} aria-label="Close menu">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M4 4L20 20M20 4L4 20"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </MenuOverlayCloseButton>
+            </MenuOverlayHeader>
+
+            <MenuOverlayBody>
+              {selectedGroupList && selectedGroupList.length > 0 && (
+                <MenuSection>
+                  <MenuSectionTitle>Custom Shelter</MenuSectionTitle>
+                  <MenuItemsGrid>
+                    {selectedGroupList.map((name: string) => (
+                      <MenuItem
+                        key={name}
+                        active={name === selectedGroup?.name}
+                        onClick={() => handleShelterMenuClick(name)}
+                      >
+                        {name}
+                      </MenuItem>
+                    ))}
+                  </MenuItemsGrid>
+                </MenuSection>
+              )}
+
+              {visibleAreas.length > 0 && (
+                <MenuSection>
+                  <MenuSectionTitle>Custom Panels</MenuSectionTitle>
+                  <MenuItemsGrid>
+                    {visibleAreas.map((area) => (
+                      <MenuItem
+                        key={area.name}
+                        active={
+                          !!selectedPersonalize && area.id === selectedFilteredAreas
+                        }
+                        onClick={() => handlePanelMenuClick(area.name)}
+                      >
+                        {area.name}
+                      </MenuItem>
+                    ))}
+                  </MenuItemsGrid>
+                </MenuSection>
+              )}
+            </MenuOverlayBody>
+          </MenuOverlay>
+        )}
       </div>
     </>
   );
