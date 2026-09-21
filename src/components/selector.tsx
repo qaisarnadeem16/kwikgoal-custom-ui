@@ -504,22 +504,6 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
           >
             {"Customize Panels"}
           </CustomizePanelsButton>
-          {selectedPersonalize ? (
-            <div
-              style={{
-                position: "absolute",
-                top: "4%",
-                left: "3%",
-                width: "94%",
-                zIndex: 10,
-              }}
-            >
-              <Designer togglePersonalize={togglePersonalize} selectedPersonalize={selectedPersonalize}
-                updateSelectedFilter={updateSelectedFilter} selectedFilteredAreas={selectedFilteredAreas} />
-            </div>
-          ) : (
-            ""
-          )}
         </>
       )}
     </>
@@ -1118,6 +1102,26 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
               )}
             </MenuOverlayBody>
           </MenuOverlay>
+        )}
+
+        {selectedPersonalize && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 60,
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "center",
+              overflowY: "auto",
+              padding: "12px",
+            }}
+          >
+            <div style={{ width: "80%", maxWidth: "900px" }}>
+              <Designer togglePersonalize={togglePersonalize} selectedPersonalize={selectedPersonalize}
+                updateSelectedFilter={updateSelectedFilter} selectedFilteredAreas={selectedFilteredAreas} />
+            </div>
+          </div>
         )}
       </div>
     </>
