@@ -777,10 +777,13 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                                   {opts.options.map((atrOpts) => {
                                     if (!atrOpts.enabled) return null;
 
+                                    const isRalFamilyColor = opts.code === "Shelter Colors";
+
                                     return (
                                       <ColorChipItem key={atrOpts.id}>
                                         <ColorChip
                                           type="button"
+                                          big={!isRalFamilyColor}
                                           selected={atrOpts.selected}
                                           onClick={() => {
                                             selectOption(atrOpts.id);
@@ -1117,7 +1120,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
               padding: "12px",
             }}
           >
-            <div style={{ width: "80%", maxWidth: "900px" }}>
+            <div style={{ width: "100%" }}>
               <Designer togglePersonalize={togglePersonalize} selectedPersonalize={selectedPersonalize}
                 updateSelectedFilter={updateSelectedFilter} selectedFilteredAreas={selectedFilteredAreas} />
             </div>

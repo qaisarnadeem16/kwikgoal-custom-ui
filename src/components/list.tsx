@@ -334,7 +334,7 @@ export const ColorFamilyHeading = styled.h4`
 export const ColorSwatchRow = styled.div`
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 16px;
 `;
@@ -433,12 +433,12 @@ export const ColorChipItem = styled.div`
     gap: 8px;
 `;
 
-export const ColorChip = styled.button<{ selected?: boolean }>`
+export const ColorChip = styled.button<{ selected?: boolean; big?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
+    width: ${props => props.big ? '70px' : '50px'};
+    height: ${props => props.big ? '70px' : '50px'};
     padding: 0;
     border-radius: 12px;
     cursor: pointer;

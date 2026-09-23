@@ -648,7 +648,18 @@ export const BottomBarStepNav = styled.div`
 	align-items: center;
 	justify-content: center;
 	gap: 20px;
-	flex: 1;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+
+	@media (max-width: 1024px) {
+		position: static;
+		left: auto;
+		top: auto;
+		transform: none;
+		flex: 1;
+	}
 `;
 
 export const BottomBarStepArrow = styled.button<{ muted?: boolean }>`
