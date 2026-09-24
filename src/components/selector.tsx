@@ -516,14 +516,6 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
         return "Explore options available for this category.";
     }
   };
-  const observerErrorHandler = (error: { message: string; }) => {
-    if (error.message === "ResizeObserver loop completed with undelivered notifications.") {
-      return;
-    }
-    console.error(error);
-  };
-  window.addEventListener("error", observerErrorHandler);
-
   console.log('selectedFilteredAreas', selectedFilteredAreas)
   // console.log('selectOptionName', selectedOptionName)
   const viewerOverlayContent = (
@@ -564,7 +556,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
             </ZoomButtonStack>
           </ViewerControlGroup>
 
-          <ViewerControlGroup>
+          {/* <ViewerControlGroup>
             <ViewerControlLabel active={isBackgroundOn}>Background</ViewerControlLabel>
             <ToggleSwitchWrap>
               <ToggleSwitch
@@ -575,7 +567,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
               />
               <ToggleSwitchState active={isBackgroundOn}>{isBackgroundOn ? "On" : "Off"}</ToggleSwitchState>
             </ToggleSwitchWrap>
-          </ViewerControlGroup>
+          </ViewerControlGroup> */}
         </ViewerControlsPanel>
       ) : (
         ""

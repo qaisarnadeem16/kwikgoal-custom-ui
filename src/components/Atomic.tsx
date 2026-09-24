@@ -100,13 +100,14 @@ export const Button = styled.button<{
 	justify-content: center;
 	align-items: center;
 	width: ${(props) => (props.isFullWidth ? '100%' : props.outline ? '60px' : props.primary ? '200px' : '60px')};
-	background-color: ${(props) => (props.primary ? '#297ca3' : 'white')};
-	color: ${(props) => (props.outline ? 'black' : props.primary ? 'white' : 'black')};
+	background-color: #D32F37;
+	color: ${(props) => (props.outline ? 'black' : props.primary ? 'white' : 'D32F37')};
 	min-height: 38px;
 	padding: ${(props) => (props.outline ? '' : '5px 10px 5px 10px')};
 	text-align: center;
 	text-transform: ${(props) => (props.uppercase ? 'uppercase' : 'none')};
-	border: ${(props) => (props.outline ? '1px solid #297CA3' : '1px solid black')};
+	// border: ${(props) => (props.outline ? '1px solid #297CA3' : '1px solid #')};
+	border: ${(props) => (props.outline ? '1px solid #297CA3' : '1px solid #D32F37')};
 	cursor: ${(props) => (!props.disabled ? 'pointer' : 'auto')};
 	border-radius: 4px;
 
@@ -121,8 +122,8 @@ export const Button = styled.button<{
 		`
       &:hover {
         /*background-color: ${props.outline ? 'white' : props.primary ? '#297ca3' : '#297ca3'};*/
-		background-color: ${props.outline ? 'white' : props.primary ? 'black' : 'black'};
-        border: ${props.outline ? '1px solid black' : '1px solid #4b6074'};
+		background-color: ${props.outline ? 'white' : props.primary ? '#D32F37' : 'black'};
+        border: ${props.outline ? '1px solid #D32F37' : '1px solid #D32F37'};
         color: ${props.outline ? 'black' : 'white'};
       }
   `}

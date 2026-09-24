@@ -505,8 +505,8 @@ export const ZoomButton = styled.button<{ active?: boolean }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
-	height: 40px;
+	width: 26px;
+	height: 26px;
 	padding: 0;
 	border: none;
 	background: transparent;
@@ -514,13 +514,13 @@ export const ZoomButton = styled.button<{ active?: boolean }>`
 	color: ${(props) => (props.active ? "#ffffff" : "#1a1a1a")};
 	transition: color 0.2s ease;
 
-	svg {
-		width: 16px;
-		height: 16px;
-	}
+	// svg {
+	// 	width: 16px;
+	// 	height: 16px;
+	// }
 
 	&:hover {
-		color: #297ca3;
+		color: #D32F37;
 	}
 `;
 
@@ -610,7 +610,7 @@ export const BottomBar = styled.div`
 	min-height: 72px;
 	padding: 12px 24px;
 	background-color: #ffffff;
-	// border-top: 1px solid #1a1a1a;
+	border-top: 1px solid #1a1a1a;
 	box-sizing: border-box;
 	font-family: 'Roboto', sans-serif;
 	z-index: 5;

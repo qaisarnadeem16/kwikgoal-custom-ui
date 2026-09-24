@@ -1,11 +1,6 @@
-import React, {FC} from "react";
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
 import styled from "styled-components";
-import { TemplateArea, useZakeke } from 'zakeke-configurator-react';
-import { Button, Icon } from '../Atomic';
-import { T } from '../../Helpers';
-import { ReactComponent as CloseIcon } from '../../assets/icons/times-solid.svg';
-import { FormControl } from "./FormControl";
-
+import { TemplateArea } from 'zakeke-configurator-react';
 
 export interface EditImageItem {
     guid: string,
@@ -42,69 +37,57 @@ interface ImageItem {
     }) | null;
 }
 
-const ImageAndButtonsContainer = styled.div`
-    display: grid;
-    grid-template-columns: 7fr 1fr;
-    grid-column-gap: 20px;
-    input{
-    display:none;
-  }
-`;
+export interface ItemImageHandle {
+    openFileDialog: () => void;
+}
 
-const ImagePreview = styled.div`
-    border: 5px #f4f4f4 solid;
-    padding: 4px;
-    height: 130px;
-    img{
+const ArtworkPreviewBox = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    padding: 12px;
+    box-sizing: border-box;
+
+    img {
         display: block;
-        width: 100%;
-        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
         object-fit: contain;
     }
 `;
 
-const ButtonsContainer = styled.div`
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    padding:20px 0px;
-    
-`;
+const ItemImage = forwardRef<
+    ItemImageHandle,
+    { item: ImageItem, handleItemPropChange: any, currentTemplateArea: TemplateArea, uploadImgDisabled: boolean }
+>(({ item, handleItemPropChange }, ref) => {
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
-const ItemImage: FC<{ item: ImageItem, handleItemPropChange: any, currentTemplateArea: TemplateArea, uploadImgDisabled: boolean }> = ({ item, handleItemPropChange, currentTemplateArea, uploadImgDisabled }) => {
-    const { removeItem } = useZakeke();
-
-    let inputHtml!: HTMLInputElement;
-
-    const handleChangeClick = () => inputHtml.click();
-
-    const handleGalleryClick = () => handleItemPropChange(item, 'image-gallery');
+    useImperativeHandle(ref, () => ({
+        openFileDialog: () => inputRef.current?.click(),
+    }));
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.currentTarget.files && e.currentTarget.files.length > 0) {
             handleItemPropChange(item, 'image-upload', e.currentTarget.files![0])
         }
-        inputHtml.value = "";
+        if (inputRef.current) inputRef.current.value = "";
     }
 
-    const constraints = item.constraints;
-    const canEdit = constraints ? constraints.canEdit : true;
-
-    const showUploadButton = ((!currentTemplateArea || currentTemplateArea.uploadRestrictions.isUserImageAllowed) && canEdit);
-    const showGalleryButton = (!currentTemplateArea || !currentTemplateArea.disableSellerImages) && canEdit;    
-
-    return <FormControl
-        label={item.name || T._("Image", "Composer")}
-        rightComponent={constraints!.canDelete && <Icon onClick={() => removeItem(item.guid)}><CloseIcon /></Icon>}>
-        <ImageAndButtonsContainer>
-            <ImagePreview><img src={item.url} alt="" /></ImagePreview>
-            <ButtonsContainer>
-                {showUploadButton && <Button disabled={uploadImgDisabled} isFullWidth onClick={handleChangeClick}>{T._("Image", "Composer")}</Button>}
-                {showGalleryButton && <Button isFullWidth onClick={handleGalleryClick}>{T._("Gallery", "Composer")}</Button>}
-            </ButtonsContainer>
-            <input type="file" ref={input => inputHtml = input!} onChange={handleInputChange} />
-        </ImageAndButtonsContainer>
-    </FormControl>
-}
+    return (
+        <ArtworkPreviewBox>
+            <img src={item.url} alt="" />
+            <input
+                type="file"
+                ref={inputRef}
+                style={{ display: 'none' }}
+                onChange={handleInputChange}
+            />
+        </ArtworkPreviewBox>
+    );
+});
 
 export default ItemImage;
