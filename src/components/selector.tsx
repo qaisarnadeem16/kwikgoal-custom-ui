@@ -1,5 +1,5 @@
 import "./selector.css";
-import React, { FunctionComponent, useEffect, useMemo, useState } from "react";
+import React, { FunctionComponent, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { ReactComponent as SearchPlusSolid } from "../assets/icons/search-plus-solid.svg";
 import { ReactComponent as SearchMinusSolid } from "../assets/icons/search-minus-solid.svg";
@@ -147,6 +147,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
     items,
     product,
     isAreaVisible,
+    backgroundColor,
+    setBackgroundColor,
+    getMeshIDbyName,
+    hideMeshAndSaveState,
+    restoreMeshVisibility,
   } = useZakeke();
 
 
@@ -196,6 +201,60 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   const [selectedFilteredAreas, setSelectedFilteredAreas] = useState<number>(0);
 
   const [isBackgroundOn, setIsBackgroundOn] = useState<boolean>(false);
+  const originalBackgroundColorRef = useRef<string | null>(null);
+
+  // The flat backdrop color (setBackgroundColor) only paints the sky/skybox area.
+  // The ground/grass is a separate mesh in the scene, so we also have to find and
+  // hide it. We don't know its exact name in this GLB, so we try common ones.
+  const GROUND_MESH_NAME_CANDIDATES = [
+    "Ground", "ground", "Ground_Plane", "GroundPlane", "Ground Plane",
+    "Floor", "floor", "Floor_Plane", "FloorPlane",
+    "Grass", "grass", "Grass_Plane", "GrassPlane",
+    "Terrain", "terrain",
+    "Environment", "environment",
+  ];
+  const groundMeshIdsRef = useRef<string[] | null>(null);
+
+  const getGroundMeshIds = () => {
+    if (groundMeshIdsRef.current) return groundMeshIdsRef.current;
+
+    const foundIds: string[] = [];
+    GROUND_MESH_NAME_CANDIDATES.forEach((name) => {
+      const meshId = getMeshIDbyName(name);
+      if (meshId && !foundIds.includes(meshId)) foundIds.push(meshId);
+    });
+
+    if (foundIds.length === 0) {
+      console.warn(
+        "[Background toggle] Could not find a ground/grass mesh by any of the known candidate names. " +
+        "Check the model's actual mesh name in the scene and add it to GROUND_MESH_NAME_CANDIDATES."
+      );
+    } else {
+      console.log("[Background toggle] Ground mesh id(s) found:", foundIds);
+    }
+
+    groundMeshIdsRef.current = foundIds;
+    return foundIds;
+  };
+
+  const toggleBackground = () => {
+    const nextIsBackgroundOn = !isBackgroundOn;
+    const groundMeshIds = getGroundMeshIds();
+
+    if (nextIsBackgroundOn) {
+      // Remember the model's current background so it can be restored later
+      if (originalBackgroundColorRef.current === null) {
+        originalBackgroundColorRef.current = backgroundColor;
+      }
+      setBackgroundColor("#F2F2F2", 1);
+      groundMeshIds.forEach((meshId) => hideMeshAndSaveState(meshId));
+    } else {
+      setBackgroundColor(originalBackgroundColorRef.current ?? backgroundColor, 0);
+      groundMeshIds.forEach((meshId) => restoreMeshVisibility(meshId));
+    }
+
+    setIsBackgroundOn(nextIsBackgroundOn);
+  };
 
 
   const updateSelectedFilter = (id: number) => {
@@ -359,9 +418,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   // -- -- -- options
 
   const handleLeftClick = () => {
+    if (currentIndex === 0) return;
+
     selectColorName("");
-    setCurrentIndex((currentIndex - 1 + groups.length) % groups.length);
-    selectGroup(groups[(currentIndex - 1 + groups.length) % groups.length].id);
+    setCurrentIndex(currentIndex - 1);
+    selectGroup(groups[currentIndex - 1].id);
 
     if (items.filter((item) => item.type === 0).length === 0) {
       if (groups[groups.length - 1].name === "MODALITATE IMPRIMARE")
@@ -372,9 +433,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   };
 
   const handleRightClick = () => {
+    if (currentIndex === groups.length - 1) return;
+
     selectColorName("");
-    setCurrentIndex((currentIndex + 1) % groups.length);
-    selectGroup(groups[(currentIndex + 1) % groups.length].id);
+    setCurrentIndex(currentIndex + 1);
+    selectGroup(groups[currentIndex + 1].id);
 
     if (items.filter((item) => item.type === 0).length === 0) {
       if (groups[groups.length - 1].name === "MODALITATE IMPRIMARE")
@@ -428,7 +491,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   const containerStyles = {
     overflow: "auto",
     width: "100%",
-    height: !selectedTrayPreviewOpenButton ? "370px" : "70px",
+    height: !selectedTrayPreviewOpenButton ? "420px" : "70px",
   };
   const getShelterPanelCount = (sizeName: string): number | null => {
     const match = sizeName.match(/(\d+)/);
@@ -468,27 +531,49 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
       {!isMobile && !isTrayOpen ? (
         <ViewerControlsPanel>
           <ViewerControlGroup>
-            <ViewerControlLabel>View</ViewerControlLabel>
+            <ViewerControlLabel active={isBackgroundOn}>View</ViewerControlLabel>
             <ZoomButtonStack>
-              <ZoomButton onClick={zoomIn} aria-label="Zoom in">
-                <SearchPlusSolid />
+              <ZoomButton active={isBackgroundOn} onClick={zoomIn} aria-label="Zoom in">
+                {/* <SearchPlusSolid /> */}
+                <svg width="28" height="28" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_2_16)">
+                    <path d="M1.01461 26.0001H1.52394C1.89179 25.9112 2.12624 25.6847 2.41325 25.4017L12.4462 15.3656C15.0292 17.2297 18.356 17.5612 21.2786 16.1298C23.8333 14.8804 25.713 12.2682 25.9555 9.27197L26 9.0334L25.9798 7.98612C25.6524 3.1743 21.5414 -0.37593 16.7229 0.0324683C13.7317 0.283168 11.1163 2.15937 9.86318 4.71894C8.43221 7.64242 8.76368 10.9743 10.6312 13.5541L0.347637 23.8449C-0.0121269 24.2048 -0.0768051 24.7304 0.0970135 25.1914C0.242537 25.5715 0.594215 25.8667 1.01866 26.0001H1.01461ZM11.5367 8.50774C11.5367 5.22034 14.2006 2.55564 17.4869 2.55564C20.7733 2.55564 23.4372 5.22034 23.4372 8.50774C23.4372 11.7951 20.7733 14.4598 17.4869 14.4598C14.2006 14.4598 11.5367 11.7951 11.5367 8.50774Z" fill="currentColor" />
+                    <path d="M16.6623 12.1104C16.6623 12.6199 17.0544 12.9798 17.495 12.9919C17.968 13.004 18.3924 12.6361 18.3924 12.1306V9.32845L21.222 9.3244C21.7152 9.3244 22.0668 8.88366 22.0547 8.44695C22.0466 7.96982 21.6707 7.59377 21.1735 7.59377H18.3964V4.81181C18.3964 4.31445 18.0205 3.9384 17.5435 3.93031C17.107 3.92223 16.6663 4.26997 16.6663 4.76328L16.6583 7.58972H13.861C13.3678 7.58972 13.0121 7.99003 13 8.44291C12.9879 8.89579 13.3638 9.32036 13.861 9.3244H16.6583V12.1064L16.6623 12.1104Z" fill="currentColor" />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_2_16">
+                      <rect width="26" height="26" fill="white" transform="matrix(-1 0 0 1 26 0)" />
+                    </clipPath>
+                  </defs>
+                </svg>
               </ZoomButton>
-              <ZoomButton onClick={zoomOut} aria-label="Zoom out">
-                <SearchMinusSolid />
+              <ZoomButton active={isBackgroundOn} onClick={zoomOut} aria-label="Zoom out">
+                {/* <SearchMinusSolid /> */}
+                <svg width="28" height="28" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_2_20)">
+                    <path d="M1.01461 26.0001H1.52394C1.89179 25.9112 2.12624 25.6847 2.41325 25.4017L12.4462 15.3656C15.0292 17.2297 18.356 17.5612 21.2786 16.1298C23.8333 14.8804 25.713 12.2682 25.9555 9.27197L26 9.0334L25.9798 7.98612C25.6524 3.1743 21.5414 -0.37593 16.7229 0.0324683C13.7317 0.283168 11.1163 2.15937 9.86318 4.71894C8.43221 7.64242 8.76368 10.9743 10.6312 13.5541L0.347637 23.8449C-0.0121269 24.2048 -0.0768051 24.7304 0.0970135 25.1914C0.242537 25.5715 0.594215 25.8667 1.01866 26.0001H1.01461ZM11.5367 8.50774C11.5367 5.22034 14.2006 2.55564 17.4869 2.55564C20.7733 2.55564 23.4372 5.22034 23.4372 8.50774C23.4372 11.7951 20.7733 14.4598 17.4869 14.4598C14.2006 14.4598 11.5367 11.7951 11.5367 8.50774Z" fill="currentColor" />
+                    <path d="M13.861 7.5979L16.6583 7.61407L18.3965 7.5979H21.1735C21.6707 7.5979 22.0466 7.97395 22.0547 8.45109C22.0628 8.88779 21.7152 9.32854 21.222 9.32854H18.5218L16.6583 9.33258H13.861C13.3598 9.33258 12.9879 8.91205 13 8.45109C13.0121 7.99821 13.3679 7.60194 13.861 7.60194V7.5979Z" fill="currentColor" />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_2_20">
+                      <rect width="26" height="26" fill="white" transform="matrix(-1 0 0 1 26 0)" />
+                    </clipPath>
+                  </defs>
+                </svg>
               </ZoomButton>
             </ZoomButtonStack>
           </ViewerControlGroup>
 
           <ViewerControlGroup>
-            <ViewerControlLabel>Background</ViewerControlLabel>
+            <ViewerControlLabel active={isBackgroundOn}>Background</ViewerControlLabel>
             <ToggleSwitchWrap>
               <ToggleSwitch
                 isOn={isBackgroundOn}
-                onClick={() => setIsBackgroundOn(!isBackgroundOn)}
+                onClick={toggleBackground}
                 aria-label="Toggle background"
                 aria-pressed={isBackgroundOn}
               />
-              <ToggleSwitchState>{isBackgroundOn ? "On" : "Off"}</ToggleSwitchState>
+              <ToggleSwitchState active={isBackgroundOn}>{isBackgroundOn ? "On" : "Off"}</ToggleSwitchState>
             </ToggleSwitchWrap>
           </ViewerControlGroup>
         </ViewerControlsPanel>
@@ -519,7 +604,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
         className="animate-wrapper-0"
         style={{
           position: "relative",
-          height: "45%",
+          height: "37%",
           flexShrink: 0,
           display: "flex",
           flexDirection: "column",
@@ -549,7 +634,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
             <BottomBarStepNav>
               <BottomBarStepArrow
-                muted={currentIndex + 1 === 1}
+                muted={currentIndex === 0}
+                disabled={currentIndex === 0}
                 onClick={handleLeftClick}
                 aria-label="Previous"
               >
@@ -585,7 +671,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
               />
 
               <BottomBarStepArrow
-                muted={currentIndex + 1 === groups.length - 2}
+                muted={currentIndex === groups.length - 1}
+                disabled={currentIndex === groups.length - 1}
                 onClick={handleRightClick}
                 aria-label="Next"
               >
@@ -752,7 +839,13 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
                                 <ColorFamilyFooter>
                                   View our full list of{" "}
-                                  <RalColorsLink>RAL colors</RalColorsLink>{" "}
+                                  <RalColorsLink
+                                    href="https://kwikgoal.com/ral-color-options/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    RAL colors
+                                  </RalColorsLink>{" "}
                                   for custom frames.
                                 </ColorFamilyFooter>
                               </ColorFamilySection>
@@ -768,7 +861,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                                   style={{
                                     display: "flex",
                                     flexWrap: "wrap",
-                                    gap: "16px",
+                                    gap: "10px",
                                     width: "100%",
                                     alignItems: "flex-start",
                                     justifyContent: "center",

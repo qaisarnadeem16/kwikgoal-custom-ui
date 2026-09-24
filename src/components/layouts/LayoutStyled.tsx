@@ -103,7 +103,7 @@ export const CustomQuotationConfirmMessage = styled(DialogWindow)`
 `;
 
 
-export const ZoomInIcon = styled(Icon)<{ isMobile?: boolean }>`
+export const ZoomInIcon = styled(Icon) <{ isMobile?: boolean }>`
 	position: absolute;
 	left: 20px;
 	width: 32px;
@@ -120,7 +120,7 @@ export const ZoomInIcon = styled(Icon)<{ isMobile?: boolean }>`
 	}
 `;
 
-export const ZoomOutIcon = styled(Icon)<{ isMobile?: boolean }>`
+export const ZoomOutIcon = styled(Icon) <{ isMobile?: boolean }>`
 	position: absolute;
 	left: 20px;
 	width: 32px;
@@ -464,7 +464,8 @@ export const HeaderTitle = styled.h1`
 export const ViewerControlsPanel = styled.div`
 	position: absolute;
 	left: 24px;
-	top: 32px;
+	// top: 32px;
+	bottom:60px;
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
@@ -484,12 +485,14 @@ export const ViewerControlGroup = styled.div`
 	gap: 8px;
 `;
 
-export const ViewerControlLabel = styled.span`
+export const ViewerControlLabel = styled.span<{ active?: boolean }>`
 	font-size: 12px;
-	font-weight: 600;
+	font-weight: 500;
+	font-family: 'Roboto', sans-serif;
 	letter-spacing: 0.5px;
 	text-transform: uppercase;
-	color: #1a1a1a;
+	color: ${(props) => (props.active ? "#ffffff" : "#000000")};
+	transition: color 0.2s ease;
 `;
 
 export const ZoomButtonStack = styled.div`
@@ -498,17 +501,18 @@ export const ZoomButtonStack = styled.div`
 	gap: 4px;
 `;
 
-export const ZoomButton = styled.button`
+export const ZoomButton = styled.button<{ active?: boolean }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 30px;
-	height: 30px;
+	width: 40px;
+	height: 40px;
 	padding: 0;
 	border: none;
 	background: transparent;
 	cursor: pointer;
-	color: #1a1a1a;
+	color: ${(props) => (props.active ? "#ffffff" : "#1a1a1a")};
+	transition: color 0.2s ease;
 
 	svg {
 		width: 16px;
@@ -529,38 +533,40 @@ export const ToggleSwitchWrap = styled.div`
 
 export const ToggleSwitch = styled.button<{ isOn?: boolean }>`
 	position: relative;
-	width: 44px;
+	width: 55px;
 	height: 24px;
 	border-radius: 14px;
 	border: none;
 	padding: 0;
 	cursor: pointer;
-	background-color: #d9d9d9;
+	background-color: #D9D9D9;
 	transition: background-color 0.2s ease;
 
 	${(props) =>
 		props.isOn &&
 		`
-		background-color: #297ca3;
-	`}
+    background-color: #D32F37;
+  `
+	}
 
 	&::after {
 		content: '';
 		position: absolute;
 		top: 3px;
-		left: ${(props) => (props.isOn ? "23px" : "3px")};
+		left: ${(props) => (props.isOn ? "31px" : "3px")};
 		width: 18px;
 		height: 18px;
 		border-radius: 50%;
-		background-color: #1a1a1a;
+		background-color:${(props) => (props.isOn ? "#ffffff" : "#636363")};
 		transition: left 0.2s ease;
 	}
 `;
 
-export const ToggleSwitchState = styled.span`
+export const ToggleSwitchState = styled.span<{ active?: boolean }>`
 	font-size: 11px;
-	color: #6b6b6b;
+	color: ${(props) => (props.active ? "#ffffff" : "#D9D9D9")};
 	text-transform: uppercase;
+	transition: color 0.2s ease;
 `;
 
 export const CustomizePanelsButton = styled.button`
@@ -604,11 +610,11 @@ export const BottomBar = styled.div`
 	min-height: 72px;
 	padding: 12px 24px;
 	background-color: #ffffff;
-	border-top: 1px solid #1a1a1a;
+	// border-top: 1px solid #1a1a1a;
 	box-sizing: border-box;
 	font-family: 'Roboto', sans-serif;
 	z-index: 5;
-	gap: 16px;
+	gap: 1s6px;
 	flex-wrap: wrap;
 
 	@media (max-width: 1024px) {
@@ -647,7 +653,7 @@ export const BottomBarStepNav = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 20px;
+	gap: 75px;
 	position: absolute;
 	left: 50%;
 	top: 50%;
@@ -666,21 +672,22 @@ export const BottomBarStepArrow = styled.button<{ muted?: boolean }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 24px;
-	height: 20px;
+	// width: 24px;
+	// height: 20px;
 	padding: 0;
 	border: none;
 	background: transparent;
-	cursor: pointer;
+	cursor: ${(props) => (props.muted ? "not-allowed" : "pointer")};
+	pointer-events: ${(props) => (props.muted ? "none" : "auto")};
 	color: ${(props) => (props.muted ? "#BCBEC0" : "#292521")};
 
-	svg {
-		width: 20px;
-		height: 16px;
-	}
+	// svg {
+	// 	width: 20px;
+	// 	height: 16px;
+	// }
 
 	&:hover {
-		color: #297ca3;
+		color: ${(props) => (props.muted ? "#BCBEC0" : "#D32F37")};
 	}
 `;
 
@@ -749,7 +756,7 @@ export const MenuOverlayHeader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 16px;
+	gap: 12px;
 	padding: 32px 48px 16px;
 
 	@media (max-width: 1024px) {

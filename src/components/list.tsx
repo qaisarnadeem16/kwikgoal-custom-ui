@@ -6,8 +6,8 @@ export const List = styled.ul<{isShelterColor?: boolean}>`
     padding: 10px;
     display: flex;
     align-items: center;
-    margin-top: 5px;
-    gap: 5px;
+    margin-top: 12px;
+    gap: 14px;
     margin-bottom: 17px;
     // border-radius: 50px;
     white-space: ${props => props.isShelterColor ? 'normal' : 'nowrap'};
@@ -301,11 +301,11 @@ export const PillOptionWrapper = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 6px;
+    margin: 2px;
 `;
 
 export const PillOptionCaption = styled.span`
-    margin-top: 8px;
+    // margin-top: 8px;
     font-family: 'Roboto', sans-serif;
     font-size: 12px;
     font-weight: 500;
@@ -393,12 +393,13 @@ export const IconCard = styled.button<{ selected?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 70px;
-    height: 70px;
+    width: 90px;
+    height: 90px;
     padding: 10px;
     border-radius: 12px;
     border: none;
     cursor: pointer;
+    gap: 12px;
     background-color: ${props => props.selected ? ' rgb(207, 51, 57)' : 'transparent'};
     outline: ${props => props.selected ? 'none' : '1px solid #1a1a1a'};
     // outline-offset: 2px;
@@ -437,15 +438,14 @@ export const ColorChip = styled.button<{ selected?: boolean; big?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: ${props => props.big ? '70px' : '50px'};
-    height: ${props => props.big ? '70px' : '50px'};
+    width: ${props => props.big ? '90px' : '50px'};
+    height: ${props => props.big ? '90px' : '50px'};
     padding: 0;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
     background-color: ${props => props.selected ? 'transparent' : 'transparent'};
-    border: ${props => props.selected ? '1 px solid #1a1a1a' : '1px solid #d0d0d0'};
-    outline: ${props => props.selected ? '2px solid #1a1a1a' : 'none'};
-    outline-offset: 2px;
+    border: ${props => props.selected ? '2px solid #636363' : '1px solid #636363'};
+    outline: none;
 
     @media screen and (max-width: 568px) {
         width: 52px;
@@ -454,8 +454,8 @@ export const ColorChip = styled.button<{ selected?: boolean; big?: boolean }>`
 `;
 
 export const ColorChipInner = styled.img<{ selected?: boolean }>`
-    width: ${props => props.selected ? '90%' : '80%'};
-    height: ${props => props.selected ? '90%' : '80%'};
+    width: ${props => props.selected ? '90%' : '85%'};
+    height: ${props => props.selected ? '90%' : '85%'};
     object-fit: cover;
     border-radius: ${props => props.selected ? '12px' : '8px'};
     transition: width 0.15s ease, height 0.15s ease;
@@ -476,7 +476,7 @@ export const ColorFamilyFooter = styled.p`
     text-align: center;
 `;
 
-export const RalColorsLink = styled.span`
+export const RalColorsLink = styled.a`
     color: #cf3339;
     text-decoration: underline;
     cursor: pointer;
