@@ -1036,8 +1036,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                         if (i > 0 && opts.enabled && opts.options.length >= 17) {
                           return (
                             <Swiper
-                              // spaceBetween={0}
-                              slidesPerView={20} //20
+                              spaceBetween={8}
+                              slidesPerView="auto"
                               slidesPerGroup={1}
                               pagination={{ clickable: true }}
                               navigation={{

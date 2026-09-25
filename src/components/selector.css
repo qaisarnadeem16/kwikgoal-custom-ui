@@ -235,8 +235,10 @@
 }
 
 .swiper {
-  width: 80vw !important;
+  width: 70vw !important;
   height: 64px !important;
+  padding: 0 28px !important;
+  box-sizing: border-box;
   /* position: initial !important; */
   /* height: 120% !important  ; */
 }
@@ -244,18 +246,12 @@
   width: 90vw;
 }
 .swiper-wrapper {
-  /* transform: translate3d(42px, 0px, 0px) !important;
-  transition-duration: 0ms !important;
-  transform: translate3d(0px, 0px, 0px);
-  transition-delay: 0ms !important; */
- 
-  width: 80% !important;
   margin-top: 5px;
-  /* padding-top: 3px !important; */
 }
 .swiper-slide {
   text-align: center;
-  width: 60px !important;
+  width: 43px !important;
+  flex-shrink: 0;
 }
 
 .swiper-button-next, .swiper-button-prev {
@@ -267,11 +263,11 @@
 
 
 .swiper-button-next {
-  
+  right: 0 !important;
 }
 
 .swiper-button-prev {
-left: -17px !important
+  left: 0 !important;
 }
 
 
