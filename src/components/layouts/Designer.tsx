@@ -35,11 +35,10 @@ import {
   CloseEditorButton,
   Icon,
 } from "../Atomic";
-import AddTextDialog from "../dialog/AddTextDialog";
 import { useDialogManager } from "../dialog/Dialogs";
 import ErrorDialog from "../dialog/ErrorDialog";
 import ImagesGalleryDialog from "../dialog/ImagesGalleryDialog";
-import ItemImage, { EditImageItem } from "../widgets/ItemImage";
+import ItemImage, { EditImageItem, ItemImageHandle } from "../widgets/ItemImage";
 import ItemText, { EditTextItem } from "../widgets/ItemText";
 import {
   Center,
@@ -52,6 +51,8 @@ import {
   ZoomInIcon,
   ZoomOutIcon,
 } from "./LayoutStyled";
+import { PillOption } from "../list";
+import Footer from "./Footer";
 
 import { Tooltip } from 'react-tooltip'
 
@@ -73,23 +74,19 @@ const ZoomIconOut = styled(ZoomOutIcon)`
   left: 0px;
 `;
 
-const MoveElementButton = styled(Button)`
-  /* position: absolute;
-	bottom: 0; */
-`;
-
 const DesignerContainer = styled.div<{ isMobile?: boolean }>`
   // display: flex;
   flex-flow: wrap;
   justify-content: center;
   user-select: none;
   width: 100%;
-  padding: 18px 10px 82px;
-  background-color: rgb(235, 237, 242);
+  padding: 24px 24px 32px;
+  background-color: #ffffff;
   height: 34em;
   overflow-y: auto;
   font-family: Roboto, sans-serif;
-  border-radius: 23px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   overflow-y: auto;
 
   ${(props) =>
@@ -106,11 +103,365 @@ const DesignerContainer = styled.div<{ isMobile?: boolean }>`
     `}
 `;
 
-const UploadButtons = styled.div`
+const PopupHeader = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 4px 0 20px;
+  text-align: center;
+`;
+
+const PopupTitle = styled.h2`
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #1a1a1a;
+
+  span {
+    text-transform: none;
+    font-weight: 400;
+  }
+`;
+
+const PopupSubtitle = styled.p`
+  margin: 4px 0 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #6b6b6b;
+`;
+
+const PopupCloseButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #1a1a1a;
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  &:hover {
+    color: #cf3339;
+  }
+`;
+
+const PanelSelectorRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+`;
+
+const PopupFooterRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 24px;
+`;
+
+const ArtworkSection = styled.div`
+  width: 100%;
+  margin-top: 22px;
+`;
+
+const ArtworkLabel = styled.span`
+  display: block;
+  margin-bottom: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #4a4a4a;
+`;
+
+const ArtworkGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 20px;
+  align-items: stretch;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ArtworkPreviewColumn = styled.div`
   display: flex;
   flex-direction: column;
-  grid-gap: 5px;
-  margin: 20px 0px;
+  gap: 12px;
+`;
+
+const AddArtworkBox = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 8px;
+  background-color: #f2f2f2;
+  cursor: pointer;
+`;
+
+const AddArtworkPillButton = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 24px;
+  border: 1px solid #1a1a1a;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const ArtworkActionColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 50%;
+`;
+
+const AddTextCenteredWrap = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 160px;
+  margin-top: 20px;
+`;
+
+const TextItemsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  align-items: start;
+  justify-items: center;
+  width: 100%;
+  margin-top: 20px;
+`;
+
+const RoundOutlineButton = styled.button<{ disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  border: 1px solid ${(props) => (props.disabled ? '#d0d0d0' : '#1a1a1a')};
+  background-color: #ffffff;
+  color: ${(props) => (props.disabled ? '#b0b0b0' : '#1a1a1a')};
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
+  white-space: nowrap;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    border-color: ${(props) => (props.disabled ? '#d0d0d0' : '#cf3339')};
+    color: ${(props) => (props.disabled ? '#b0b0b0' : '#cf3339')};
+  }
+`;
+
+const ArtworkFooterGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 20px;
+  align-items: center;
+  margin-top: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ArtworkFooterLeft = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+`;
+
+const AddTextPanel = styled.div`
+  margin-top: 22px;
+  width: 50%;
+  box-sizing: border-box;
+  padding: 20px 24px 24px;
+  border-radius: 10px;
+  background-color: #d9d9d9;
+`;
+
+const AddTextHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+`;
+
+const AddTextTitle = styled.span`
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #1a1a1a;
+`;
+
+const AddTextCloseButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  cursor: pointer;
+
+  svg {
+    width: 10px;
+    height: 10px;
+  }
+`;
+
+const AddTextInput = styled.textarea`
+  display: block;
+  width: 100%;
+  min-height: 46px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  resize: none;
+  border: none;
+  border-radius: 6px;
+  background-color: #f2f2f2;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-style: italic;
+  color: #6b6b6b;
+
+  &:focus {
+    outline: none;
+    font-style: normal;
+    color: #1a1a1a;
+  }
+`;
+
+const AddTextFontLabel = styled.span`
+  display: block;
+  margin-bottom: 8px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #1a1a1a;
+`;
+
+const AddTextFontRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const AddTextFontSelectWrap = styled.div`
+  position: relative;
+  flex: 1;
+`;
+
+const AddTextFontSelect = styled.select`
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 36px 12px 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 6px;
+  background-color: #f2f2f2;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #1a1a1a;
+  cursor: pointer;
+`;
+
+const AddTextFontChevron = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  display: flex;
+  transform: translateY(-50%);
+  color: #4a4a4a;
+  pointer-events: none;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+`;
+
+const AddTextConfirmButton = styled.button<{ disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background-color: #f2f2f2;
+  color: ${(props) => (props.disabled ? "#b0b0b0" : "#1a1a1a")};
+  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background-color: ${(props) => (props.disabled ? "#f2f2f2" : "#e2e2e2")};
+  }
 `;
 
 const Area = styled.div<{ selected?: boolean }>`
@@ -225,13 +576,20 @@ const Designer: FC<{
     eventMessages,
     setCopyrightMessageAccepted,
     getCopyrightMessageAccepted,
-    translations
+    translations,
+    fonts,
   } = useZakeke();
 
   const dynamicVals = translations?.dynamics;
 
   const customizerRef = useRef<any | null>(null);
   const [selectedCarouselSlide, setSelectedCarouselSlide] = useState<number>(0);
+
+  const [isAddingText, setIsAddingText] = useState(false);
+  const [newTextValue, setNewTextValue] = useState("");
+  const [newTextFontFamily, setNewTextFontFamily] = useState<string>("");
+
+  const primaryImageItemRef = useRef<ItemImageHandle | null>(null);
 
   const filteredAreas =
     product?.areas.filter((area) => isAreaVisible(area.id)) ?? [];
@@ -452,34 +810,35 @@ const Designer: FC<{
 
 
   const handleAddTextClick = () => {
-    showDialog(
-      "add-text",
-      <AddTextDialog
-        onClose={() => closeDialog("add-text")}
-        onConfirm={(item) => {
-          // console.log("item-----------------------", item);
+    setNewTextValue("");
+    setNewTextFontFamily(fonts?.[0]?.name ?? "");
+    setIsAddingText(true);
+  };
 
-          // Add the text item to the actual area
-          addItemText(item, actualAreaId);
+  const handleAddTextCancel = () => {
+    setIsAddingText(false);
+  };
 
-          // Get the logo ID corresponding to the actual area
-          const removeItemLogoId = getLogoId(actualAreaId);
+  const handleAddTextConfirm = () => {
+    if (!newTextValue.trim()) return;
 
-          if (removeItemLogoId) {
-            // Filter items that match the logo ID's areaId
-            const logoItems = items.filter((item) => item.areaId === removeItemLogoId);
+    // Add the text item to the actual area
+    addItemText({ text: newTextValue, fontFamily: newTextFontFamily }, actualAreaId);
 
-            // Iterate through and remove items
-            logoItems.forEach((logoItem) => {
-              removeItem(logoItem.guid);
-            });
-          }
+    // Get the logo ID corresponding to the actual area
+    const removeItemLogoId = getLogoId(actualAreaId);
 
-          // Close the dialog
-          closeDialog("add-text");
-        }}
-      />
-    );
+    if (removeItemLogoId) {
+      // Filter items that match the logo ID's areaId
+      const logoItems = items.filter((item) => item.areaId === removeItemLogoId);
+
+      // Iterate through and remove items
+      logoItems.forEach((logoItem) => {
+        removeItem(logoItem.guid);
+      });
+    }
+
+    setIsAddingText(false);
   };
 
 
@@ -555,6 +914,11 @@ const Designer: FC<{
       document.body.appendChild(input);
       input.click();
     }
+  };
+
+  const handleAddArtworkClick = () => {
+    if (showGalleryButton) handleAddImageFromGalleryClick();
+    else if (showUploadButton) handleUploadImageClick(addItemImage, createImage);
   };
 
   const handleItemRemoved = (guid: string) => {
@@ -681,28 +1045,45 @@ const Designer: FC<{
   };
 
 
-  const observerErrorHandler = (error: { message: string; }) => {
-    if (error.message === "ResizeObserver loop completed with undelivered notifications.") {
-      return;
-    }
-    console.error(error);
-  };
-  window.addEventListener("error", observerErrorHandler);
-
   // console.log('item', item)
   console.log('itemsFiltered', itemsFiltered)
   console.log('items', items)
   console.log('finalVisibleAreas', finalVisibleAreas)
+
+  const editableItemsFiltered = itemsFiltered.filter((item) =>
+    isItemEditable(item, currentTemplateArea)
+  );
+  const textItemsFiltered = editableItemsFiltered.filter(
+    (item) => item.type === 0
+  ) as TextItem[];
+  const imageItemsFiltered = editableItemsFiltered.filter(
+    (item) => item.type === 1
+  ) as ImageItem[];
+  const showMoveElementsGlobal = itemsFiltered.length > 0 && !allStaticElements;
+  const hasArtworkCapability =
+    imageItemsFiltered.length > 0 || showUploadButton || showGalleryButton;
+
   return (
     <>
 
-      <div onClick={togglePersonalize} style={{ display: 'flex', justifyContent: 'end' }}> Close
-        <Icon> <CloseIcon /></Icon>
-      </div>
       {!moveElements && (
-
-
         <DesignerContainer isMobile={isMobile}>
+          <PopupHeader>
+            <div>
+              <PopupTitle>Custom Panels:</PopupTitle>
+              <PopupSubtitle>Select a Panel or Area of Shelter Frame</PopupSubtitle>
+            </div>
+            <PopupCloseButton onClick={togglePersonalize} aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M4 4L20 20M20 4L4 20"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </PopupCloseButton>
+          </PopupHeader>
           {/* Templates */}
           {!isMobile && templates.length > 1 && (
             <TemplatesContainer>
@@ -777,45 +1158,34 @@ const Designer: FC<{
 
 
 
-          <div style={{ display: 'flex', flexDirection: 'row', width: '100%', height: '114px', alignItems: "center", flexFlow: 'wrap' }}>
+          <PanelSelectorRow>
             {finalVisibleAreas.map((area) => (
-              <Area
-                key={area.id}
-                selected={actualAreaId === area.id}
-                onClick={() => {
-                  setActualAreaId(area.id);
-                  if (area) {
-                    updateSelectedFilter(area.id);
-                  }
-                }}
-              >
-                {area.name}
-                <div
-                  style={{
-                    cursor: "pointer",
-                    paddingLeft: "2px"
+              <React.Fragment key={area.id}>
+                <PillOption
+                  roundedRed
+                  style={{ margin: 0 }}
+                  selected={actualAreaId === area.id}
+                  onClick={() => {
+                    setActualAreaId(area.id);
+                    if (area) {
+                      updateSelectedFilter(area.id);
+                    }
                   }}
-                  data-tooltip-id={`tooltip-${area.name.replace(/\s+/g, "-")}`} // Unique id for each group
+                  data-tooltip-id={`tooltip-${area.name.replace(/\s+/g, "-")}`}
                   data-tooltip-variant="light"
-                  data-tooltip-content={getTooltipDetail(area.name)} // Tooltip content based on area name
+                  data-tooltip-content={getTooltipDetail(area.name)}
                 >
-                  {/* <svg width="24" height="24" strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M9 9C9 5.49997 14.5 5.5 14.5 9C14.5 11.5 12 10.9999 12 13.9999" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M12 18.01L12.01 17.9989" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg> */}
-                </div>
+                  {area.name}
+                </PillOption>
 
                 <Tooltip id={`tooltip-${area.name.replace(/\s+/g, "-")}`} place="top" style={{
                   zIndex: 12,
-                  // padding: "8px",
                   border: "1px solid #000",
                   borderRadius: "4px",
                 }} />
-              </Area>
+              </React.Fragment>
             ))}
-
-          </div>
+          </PanelSelectorRow>
 
           {isMobile && translatedTemplates.length > 1 && (
             <SelectContainer>
@@ -873,94 +1243,198 @@ const Designer: FC<{
               <Center>{"No customizable items"}</Center>
             )}
 
-          {itemsFiltered.map((item) => {
-            if (item.type === 0 && isItemEditable(item, currentTemplateArea))
-              return (
+          {hasArtworkCapability ? (
+            textItemsFiltered.map((item) => (
+              <ItemText
+                key={item.guid}
+                handleItemPropChange={handleItemPropChange}
+                item={item}
+                showMoveElementsButton={showMoveElementsGlobal}
+                onMoveElementsClick={() => setMoveElements(true)}
+              />
+            ))
+          ) : textItemsFiltered.length === 0 ? (
+            showAddTextButton && !isAddingText && (
+              <AddTextCenteredWrap>
+                <RoundOutlineButton onClick={handleAddTextClick}>
+                  <Add />
+                  <span>{T._("Add Text", "Composer")}</span>
+                </RoundOutlineButton>
+              </AddTextCenteredWrap>
+            )
+          ) : (
+            <TextItemsGrid>
+              {textItemsFiltered.map((item) => (
                 <ItemText
                   key={item.guid}
                   handleItemPropChange={handleItemPropChange}
-                  item={item as TextItem}
+                  item={item}
+                  showMoveElementsButton={showMoveElementsGlobal}
+                  onMoveElementsClick={() => setMoveElements(true)}
                 />
-              );
-            else if (
-              item.type === 1 &&
-              isItemEditable(item, currentTemplateArea)
-            )
-              return (
-                <ItemImage
-                  uploadImgDisabled={
-                    copyrightMessage && copyrightMessage.additionalData.enabled
-                      ? !copyrightMandatoryCheckbox
-                      : false
-                  }
-                  key={item.guid}
-                  handleItemPropChange={handleItemPropChange}
-                  item={item as ImageItem}
-                  currentTemplateArea={currentTemplateArea!}
-                />
-              );
+              ))}
 
-            return null;
-          })}
-
-          {(showAddTextButton || showUploadButton || showGalleryButton) && (
-            <UploadButtons>
-              {showAddTextButton && (
-                <Button isFullWidth onClick={handleAddTextClick}>
-                  <Icon>
-                    <Add />
-                  </Icon>
+              {showAddTextButton && !isAddingText && (
+                <RoundOutlineButton onClick={handleAddTextClick}>
+                  <Add />
                   <span>{T._("Add Text", "Composer")}</span>
-                </Button>
+                </RoundOutlineButton>
               )}
+            </TextItemsGrid>
+          )}
 
-              {showGalleryButton && (
-                <Button isFullWidth onClick={handleAddImageFromGalleryClick}>
-                  <Icon>
-                    <Add />
-                  </Icon>
-                  <span>{T._("Add Logo", "Composer")}</span>
-                </Button>
-              )}
+          {isAddingText && (
+            <AddTextPanel>
+              <AddTextHeader>
+                <AddTextTitle>{T._("Add Text", "Composer")}</AddTextTitle>
+                <AddTextCloseButton onClick={handleAddTextCancel} aria-label="Close">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M4 4L20 20M20 4L4 20"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </AddTextCloseButton>
+              </AddTextHeader>
 
-              {showUploadButton && (
-                <>
-                  <Button
-                    disabled={
-                      copyrightMessage &&
-                        copyrightMessage.additionalData.enabled
-                        ? !copyrightMandatoryCheckbox
-                        : false
-                    }
-                    isFullWidth
-                    onClick={() =>
-                      handleUploadImageClick(addItemImage, createImage)
-                    }
+              <AddTextInput
+                placeholder="Input your text here"
+                value={newTextValue}
+                onChange={(e) => setNewTextValue(e.currentTarget.value)}
+                autoFocus
+              />
+
+              <AddTextFontLabel>{T._("Font", "Composer")}</AddTextFontLabel>
+              <AddTextFontRow>
+                <AddTextFontSelectWrap>
+                  <AddTextFontSelect
+                    value={newTextFontFamily}
+                    onChange={(e) => setNewTextFontFamily(e.currentTarget.value)}
                   >
-                    <Icon>
+                    {fonts?.map((font) => (
+                      <option key={font.name} value={font.name}>
+                        {font.name}
+                      </option>
+                    ))}
+                  </AddTextFontSelect>
+                  <AddTextFontChevron>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M6 9L12 15L18 9"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </AddTextFontChevron>
+                </AddTextFontSelectWrap>
+
+                <AddTextConfirmButton
+                  disabled={!newTextValue.trim()}
+                  onClick={handleAddTextConfirm}
+                  aria-label="Confirm"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M4 12L10 18L20 6"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </AddTextConfirmButton>
+              </AddTextFontRow>
+            </AddTextPanel>
+          )}
+
+          {hasArtworkCapability && (
+            <ArtworkSection>
+              <ArtworkLabel>
+                {imageItemsFiltered[0]?.name || T._("Artwork", "Composer")}
+              </ArtworkLabel>
+
+              <ArtworkGrid>
+                <ArtworkPreviewColumn>
+                    {imageItemsFiltered.length > 0 ? (
+                      imageItemsFiltered.map((item, idx) => (
+                        <ItemImage
+                          uploadImgDisabled={
+                            copyrightMessage && copyrightMessage.additionalData.enabled
+                              ? !copyrightMandatoryCheckbox
+                              : false
+                          }
+                          key={item.guid}
+                          ref={idx === 0 ? primaryImageItemRef : undefined}
+                          handleItemPropChange={handleItemPropChange}
+                          item={item}
+                          currentTemplateArea={currentTemplateArea!}
+                        />
+                      ))
+                    ) : (
+                      <AddArtworkBox onClick={handleAddArtworkClick}>
+                        <AddArtworkPillButton>
+                          <Add />
+                          <span>{T._("Add Artwork", "Composer")}</span>
+                        </AddArtworkPillButton>
+                      </AddArtworkBox>
+                    )}
+                </ArtworkPreviewColumn>
+
+                {imageItemsFiltered.length > 0 && (showUploadButton || showGalleryButton) && (
+                  <AddArtworkBox onClick={handleAddArtworkClick}>
+                    <AddArtworkPillButton>
                       <Add />
-                    </Icon>
-                    <span>
-                      <span>
-                        {itemsFiltered.some(
-                          (item) =>
-                            item.type === 1 &&
-                            isItemEditable(item, currentTemplateArea)
-                        )
-                          ? T._("Upload another image", "Composer")
-                          : T._("Upload image", "Composer")
-                        }{" "}
-                      </span>
-                    </span>
-                  </Button>
+                      <span>{T._("Add Additional Artwork", "Composer")}</span>
+                    </AddArtworkPillButton>
+                  </AddArtworkBox>
+                )}
+
+                {showAddTextButton && !isAddingText && (
+                  <ArtworkActionColumn>
+                    <RoundOutlineButton onClick={handleAddTextClick}>
+                      <Add />
+                      <span>{T._("Add Text", "Composer")}</span>
+                    </RoundOutlineButton>
+                  </ArtworkActionColumn>
+                )}
+              </ArtworkGrid>
+
+              <ArtworkFooterGrid>
+                <ArtworkFooterLeft>
+                  {imageItemsFiltered.length > 0 && showUploadButton && (
+                    <RoundOutlineButton
+                      disabled={
+                        copyrightMessage && copyrightMessage.additionalData.enabled
+                          ? !copyrightMandatoryCheckbox
+                          : false
+                      }
+                      onClick={() => primaryImageItemRef.current?.openFileDialog()}
+                    >
+                      <span>{T._("Replace", "Composer")}</span>
+                    </RoundOutlineButton>
+                  )}
+                  {showMoveElementsGlobal && textItemsFiltered.length === 0 && (
+                    <RoundOutlineButton onClick={() => setMoveElements(true)}>
+                      <Icon>
+                        <Arrows />
+                      </Icon>
+                      <span>{T._("Move elements", "Composer")}</span>
+                    </RoundOutlineButton>
+                  )}
+                </ArtworkFooterLeft>
+
+                {showUploadButton && (
                   <SupportedFormatsList>
                     {T._("Supported file formats:", "Composer") +
                       " " +
                       supportedFileFormats}
                   </SupportedFormatsList>
-                </>
-              )}
-
+                )}
+              </ArtworkFooterGrid>
 
               {copyrightMessage && copyrightMessage.visible && (
                 <CopyrightMessage>
@@ -993,24 +1467,17 @@ const Designer: FC<{
                     )}
                 </CopyrightMessage>
               )}
-            </UploadButtons>
-          )}
-          {itemsFiltered.length > 0 && !allStaticElements && (
-            <MoveElementButton
-              isFullWidth
-              outline
-              onClick={() => setMoveElements(true)}
-            >
-              <Icon>
-                <Arrows />
-              </Icon>
-              <span>{T._("Move elements", "Composer")} </span>
-            </MoveElementButton>
+            </ArtworkSection>
           )}
           {isMobile && (
             <CloseEditorButton onClick={onCloseClick}>
               {"OK"}
             </CloseEditorButton>
+          )}
+          {!isMobile && (
+            <PopupFooterRow>
+              <Footer />
+            </PopupFooterRow>
           )}
         </DesignerContainer>
       )}

@@ -19,7 +19,8 @@ import {
 	FooterContainer,
 	FooterRightElementsContainer,
 	PriceContainer,
-	QuantityContainer
+	QuantityContainer,
+	DownloadButton
 } from './LayoutStyled';
 //import NumericInput from './NumericInput';
 //import NftDialog, { NftForm } from 'components/dialogs/NftDialog';
@@ -317,14 +318,22 @@ const Footer = () => {
 						)} */}
 
 					{/* PDF preview */}
-					{/* <Button key={'pdf'} onClick={() => handlePdfClick()}>
-							<Icon>
-								<PdfSolid />
-							</Icon>
-						</Button> */}
+					<DownloadButton key={'pdf'} onClick={() => handlePdfClick()} aria-label="Download PDF">
+						<svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<g clipPath="url(#clip0_350_56)">
+								<path d="M0 15.7399V13.3599C0.1 13.1299 0.31 12.9799 0.56 13.0099C0.81 13.0399 1 13.2499 1 13.5199V15.4699C1 15.7499 1.18 16.0099 1.5 16.0099H17.48C17.81 16.0099 18.03 15.7899 18.03 15.4699V13.4799C18.03 13.1899 18.32 12.9999 18.56 13.0099C18.82 13.0299 19.03 13.2399 19.03 13.5199V15.5199C19.03 16.3499 18.36 17.0199 17.52 17.0199H1.53C0.75 17.0199 0.15 16.4799 0 15.7399Z" fill="currentColor" />
+								<path d="M9.87991 13.3599C9.66991 13.5699 9.36991 13.5699 9.16991 13.3799L4.16991 8.37991C3.95991 8.16991 3.94991 7.86991 4.15991 7.65991C4.32991 7.48991 4.64991 7.44991 4.85991 7.65991L9.00991 11.7999V0.479908C9.00991 0.199908 9.24991 0.00990774 9.48991 -9.22593e-05C9.72991 -0.0100923 10.0099 0.169908 10.0099 0.469908V11.8099L14.1599 7.65991C14.3699 7.44991 14.6699 7.45991 14.8599 7.63991C15.0399 7.80991 15.0899 8.13991 14.8799 8.34991L9.86991 13.3599H9.87991Z" fill="currentColor" />
+							</g>
+							<defs>
+								<clipPath id="clip0_350_56">
+									<rect width="19.02" height="17.02" fill="white" />
+								</clipPath>
+							</defs>
+						</svg>
+					</DownloadButton>
 
 					{/* Save compostition */}
-					{!isDraftEditor &&
+					{/* {!isDraftEditor &&
 						!isEditorMode &&
 						!isViewerMode &&
 						sellerSettings &&
@@ -335,7 +344,7 @@ const Footer = () => {
 								</Icon>
 							</Button>
 						)
-					}
+					} */}
 
 					{/* Share */}
 					{/* {sellerSettings && sellerSettings.shareType !== 0 && !isEditorMode && (

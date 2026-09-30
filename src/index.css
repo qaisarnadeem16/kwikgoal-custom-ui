@@ -62,7 +62,7 @@ html,body {
 
 .animate-wrapper {
   /* overflow-y: scroll; */
-  height: 177px;
+  height: 220px;
   flex: 1;
   display: flex;
   flex-direction: column;
