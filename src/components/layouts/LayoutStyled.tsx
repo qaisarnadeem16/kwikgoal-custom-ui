@@ -624,29 +624,33 @@ export const BottomBar = styled.div`
 `;
 
 export const BottomBarMenu = styled.button`
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	font-family: 'Roboto', sans-serif;
-	font-size: 14px;
-	font-weight: 600;
-	letter-spacing: 0.5px;
-	text-transform: uppercase;
-	color: #1a1a1a;
-	white-space: nowrap;
-	background: transparent;
-	border: none;
-	padding: 0;
-	cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-	svg {
-		width: 18px;
-		height: 18px;
-	}
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 
-	&:hover {
-		color: #297ca3;
-	}
+  color: #636363;
+  white-space: nowrap;
+
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+
+  svg {
+    width: 25px;
+    height: 22px;
+    transition: color 0.2s ease;
+  }
+
+  &:hover {
+    color: #D32F37;
+  }
 `;
 
 export const BottomBarStepNav = styled.div`

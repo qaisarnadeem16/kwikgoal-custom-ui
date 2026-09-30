@@ -16,16 +16,11 @@ const LoadingLabel = styled.div`
 
 const LoaderContainer = styled.div`
   height: 10px;
-  // width: 600px;
-  width: 77vw;
-  // height: 80vh;
-  margin: 0 auto;
+  width: 100%;
+  margin: 10px 0 auto;
   border-radius: 4px;
   background-color: #dbe2e6;
-
-  @media screen and (max-width: 766px) {
-    width: 100%;
-  }
+  box-sizing: border-box;
 `;
 
 const LoadingPercentageLabel = styled.span`
@@ -40,6 +35,7 @@ const LoadingPercentageLabel = styled.span`
 const LoadingPercentageandIconContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  margin-top: 8px;
 `;
 
 // const CheckIcon = styled(Icon)`
@@ -50,24 +46,39 @@ const LoadingPercentageandIconContainer = styled.div`
 const LoaderFill = styled.div`
   height: 100%;
   border-radius: 4px;
-  margin: 7px 0px;
+  margin: 0;
   width: ${({ completed }) => completed && `${completed}%`};
   background-color: #008556;
   border-radius: "inherit";
-
-   @media (max-width: 768px) { /* Adjust the breakpoint as needed */
-      margin: 0px 0px;
-
-  }
 `;
 
 const VideoPlayer = styled.video`
-  width: 100%;
-  height: 70vh;
-  object-fit: fill;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+`;
 
-  @media (max-width: 768px) { /* Adjust the breakpoint as needed */
-    height: auto;
+const LoadingUIOverlay = styled.div`
+  position: fixed;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%);
+  z-index: 1;
+  width: 77vw;
+  max-width: 600px;
+  padding: 16px 30px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.15);
+
+  @media screen and (max-width: 766px) {
+    width: 90vw;
+    bottom: 24px;
   }
 `;
 
@@ -111,22 +122,24 @@ const ProgressBar = ({ bgColor, completed }) => {
   return (
     <div>
       <VideoPlayer ref={videoRef} id="myVideo" loop  auto>
-        <source src="intro_video.mp4" type="video/mp4" />
+        <source src="kwikgoal-new-video.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </VideoPlayer>
 
-      <LoadingLabel>
-        {/* {console.log(T.d('Loading..'),'esfdfsfdssfds');} */}
-        {dynamicVals?.get("Loading...")}
+      <LoadingUIOverlay>
+        <LoadingLabel>
+          {/* {console.log(T.d('Loading..'),'esfdfsfdssfds');} */}
+          {dynamicVals?.get("Loading...")}
 
-        {/* {isSceneLoading ? T._('Loading your product...', 'Composer') : T._('Loading complete.', 'Composer')} */}
-      </LoadingLabel>
-      <LoaderContainer>
-        <LoaderFill
-          completed={isSceneLoading ? completed : 100}
-          bgColor={bgColor}
-          isCompleted={!isSceneLoading}
-        />
+          {/* {isSceneLoading ? T._('Loading your product...', 'Composer') : T._('Loading complete.', 'Composer')} */}
+        </LoadingLabel>
+        <LoaderContainer>
+          <LoaderFill
+            completed={isSceneLoading ? completed : 100}
+            bgColor={bgColor}
+            isCompleted={!isSceneLoading}
+          />
+        </LoaderContainer>
         <LoadingPercentageandIconContainer>
           <LoadingPercentageLabel>
             {isSceneLoading ? `${completed}%` : "100%"}
@@ -138,7 +151,7 @@ const ProgressBar = ({ bgColor, completed }) => {
             // </CheckIcon>
           )} */}
         </LoadingPercentageandIconContainer>
-      </LoaderContainer>
+      </LoadingUIOverlay>
     </div>
   );
 };

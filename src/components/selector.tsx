@@ -609,18 +609,44 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
           {/* {groups[currentIndex].name === "MODALITATE IMPRIMARE" && (!hasTypeZero) ? null : ( */}
           <BottomBar>
             <BottomBarMenu onClick={toggleTray} aria-label="Open menu">
-              <svg width="35" height="22" viewBox="0 0 35 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="35"
+                height="22"
+                viewBox="0 0 35 22"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <g clipPath="url(#clip0_34_66)">
-                  <path d="M1.5 1.5H33.14" stroke="#636363" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round" />
-                  <path d="M1.5 10.6299H33.14" stroke="#636363" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round" />
-                  <path d="M1.5 19.77H33.14" stroke="#636363" strokeWidth="3" strokeMiterlimit="10" strokeLinecap="round" />
+                  <path
+                    d="M1.5 1.5H33.14"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeMiterlimit="10"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M1.5 10.6299H33.14"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeMiterlimit="10"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M1.5 19.77H33.14"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeMiterlimit="10"
+                    strokeLinecap="round"
+                  />
                 </g>
+
                 <defs>
                   <clipPath id="clip0_34_66">
                     <rect width="34.64" height="21.27" fill="white" />
                   </clipPath>
                 </defs>
               </svg>
+
               {"Menu"}
             </BottomBarMenu>
 

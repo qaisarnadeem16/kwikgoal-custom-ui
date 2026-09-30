@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components/macro';
 import ProgressBar from './ProgressBar';
 import { useZakeke } from 'zakeke-configurator-react';
@@ -12,27 +13,7 @@ const ProgressBarLoadingBackground = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 12;
-`;
-
-const ProgressBarLoadingContainer = styled.div`
-  width: 80vw;
-  height: 80vh;
-  padding: 10px;
-  display: inline-flex;
-  padding: 24px 24px;
-  flex-direction: column;
-  align-items: flex-center;
-  margin: auto;
-  gap: 20px;
-  border-radius: 4px;
-  background: var(--surface-default, #fff);
-  box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.15), 0px 0px 3px 0px rgba(0, 0, 0, 0.1);
-
-  @media screen and (max-width: 766px){
-   width: 95%;
-   height: auto;
-  }
+  z-index: 2000;
 `;
 
 const ProgressBarLoadingOverlay = () => {
@@ -54,12 +35,11 @@ const ProgressBarLoadingOverlay = () => {
     }
   }, [isSceneLoading]);
 
-  return (
+  return createPortal(
     <ProgressBarLoadingBackground>
-      <ProgressBarLoadingContainer>
-        <ProgressBar bgColor={'#F46200'} completed={completed} />
-      </ProgressBarLoadingContainer>
-    </ProgressBarLoadingBackground>
+      <ProgressBar bgColor={'#F46200'} completed={completed} />
+    </ProgressBarLoadingBackground>,
+    document.body
   );
 };
 
