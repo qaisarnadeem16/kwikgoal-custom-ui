@@ -32,7 +32,7 @@
   "scripts": {
     "copy": "cpy node_modules/zakeke-configurator-react/dist/globals*.js public/",
     "start": "npm run copy && react-scripts start",
-    "build": "npm run copy && react-scripts build",
+    "build": "npm run copy && CI=false react-scripts build",
     "test": "npm run copy && react-scripts test",
     "eject": "npm run copy && react-scripts eject"
   },
