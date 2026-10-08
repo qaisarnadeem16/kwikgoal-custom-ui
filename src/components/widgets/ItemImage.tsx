@@ -42,6 +42,7 @@ export interface ItemImageHandle {
 }
 
 const ArtworkPreviewBox = styled.div`
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -57,6 +58,32 @@ const ArtworkPreviewBox = styled.div`
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+    }
+`;
+
+const ArtworkRemoveButton = styled.button`
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.55);
+    color: #ffffff;
+    cursor: pointer;
+
+    svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    &:hover {
+        background-color: #cf3339;
     }
 `;
 
@@ -77,6 +104,8 @@ const ItemImage = forwardRef<
         if (inputRef.current) inputRef.current.value = "";
     }
 
+    const canRemove = !item.constraints || item.constraints.canDelete;
+
     return (
         <ArtworkPreviewBox>
             <img src={item.url} alt="" />
@@ -86,6 +115,22 @@ const ItemImage = forwardRef<
                 style={{ display: 'none' }}
                 onChange={handleInputChange}
             />
+            {canRemove && (
+                <ArtworkRemoveButton
+                    type="button"
+                    onClick={() => handleItemPropChange(item, 'remove', true)}
+                    aria-label="Remove artwork"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M4 4L20 20M20 4L4 20"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                        />
+                    </svg>
+                </ArtworkRemoveButton>
+            )}
         </ArtworkPreviewBox>
     );
 });

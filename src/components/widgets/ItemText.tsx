@@ -50,7 +50,7 @@ export interface TextItem {
 const ItemTextContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 50px;
+    gap: 20px;
     width: 100%;
 `;
 
@@ -118,7 +118,7 @@ const AddedTextRemoveButton = styled.button`
 
 const MoveElementsButton = styled.button`
     display: flex;
-    align-self: flex-start;
+    flex-shrink: 0;
     align-items: center;
     gap: 10px;
     padding: 12px 24px;
@@ -132,6 +132,7 @@ const MoveElementsButton = styled.button`
     text-transform: uppercase;
     letter-spacing: 0.3px;
     cursor: pointer;
+    white-space: nowrap;
 
     svg {
         width: 16px;
@@ -147,12 +148,22 @@ const MoveElementsButton = styled.button`
 const FieldRow = styled.div`
     display: flex;
     flex-wrap: wrap;
-    gap: 32px;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px 24px;
+    border-radius: 10px;
+    background-color: #d9d9d9;
 `;
 
 const FieldColumn = styled.div`
     flex: 1;
     min-width: 180px;
+`;
+
+const ColorFieldColumn = styled.div`
+    flex: 0 0 auto;
 `;
 
 const FieldLabel = styled.span`
@@ -301,22 +312,22 @@ const ItemText: FC<{
                 )}
             </AddedTextBar>
 
-            {showMoveElementsButton && (
-                <MoveElementsButton onClick={onMoveElementsClick}>
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M12 2V22M2 12H22M6 6L2 12L6 18M18 6L22 12L18 18"
-                            stroke="currentColor"
-                            strokeWidth="1.6"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                    <span>{T._("Move elements", "Composer")}</span>
-                </MoveElementsButton>
-            )}
-
             <FieldRow>
+                {showMoveElementsButton && (
+                    <MoveElementsButton onClick={onMoveElementsClick}>
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2V22M2 12H22M6 6L2 12L6 18M18 6L22 12L18 18"
+                                stroke="currentColor"
+                                strokeWidth="1.6"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                        <span>{T._("Move elements", "Composer")}</span>
+                    </MoveElementsButton>
+                )}
+
                 {(!item.constraints || item.constraints.canChangeFontFamily) && (
                     <FieldColumn>
                         <FieldLabel>{T._("Font", "Composer")}</FieldLabel>
@@ -345,7 +356,7 @@ const ItemText: FC<{
                 )}
 
                 {showColorSection && (
-                    <FieldColumn>
+                    <ColorFieldColumn>
                         <FieldLabel>{T._("Color", "Composer")}</FieldLabel>
                         <ColorRow>
                             {disableTextColors ? (
@@ -393,7 +404,7 @@ const ItemText: FC<{
                                 </>
                             )}
                         </ColorRow>
-                    </FieldColumn>
+                    </ColorFieldColumn>
                 )}
             </FieldRow>
         </ItemTextContainer>

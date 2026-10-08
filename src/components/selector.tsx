@@ -64,11 +64,14 @@ import {
   MenuSectionTitle,
   MenuItemsGrid,
   MenuItem,
+  FinalStepPanel,
+  FinalStepButton,
 } from "./layouts/LayoutStyled";
 import { createPortal } from "react-dom";
 import useStore from "../Store";
 import { T } from "../Helpers";
 import Footer from "./layouts/Footer";
+import { useFooterActions } from "./layouts/useFooterActions";
 import FooterMobile from "./layouts/FooterMobile";
 import Pagination from "swiper";
 // Import Swiper React components
@@ -156,6 +159,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
 
   const { setIsLoading, isMobile } = useStore();
+
+  const { handlePdfClick, handleGetQuoteClick } = useFooterActions();
 
   // Keep saved the ID and not the refereces, they will change on each update
   const [selectedGroupId, selectGroup] = useState<number | null>(null);
@@ -287,6 +292,15 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
     groups.splice(4, 1);
   }
 
+  // "Shelter Logo" and "Shelter Text" stay available inside the Customize
+  // Panels flow, but shouldn't be reachable as their own steps in the main
+  // step-by-step sequence — the Kwik Goal logo is managed automatically
+  // based on what the customer adds there, not chosen directly here.
+  const navGroups = groups.filter(
+    (group) => group.name !== "Shelter Logo" && group.name !== "Shelter Text"
+  );
+  const isFinalStep = currentIndex === navGroups.length;
+
   useEffect(() => {
     const itemAvailable = items?.filter((item) => item.type === 0).length > 0;
 
@@ -328,9 +342,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
     if (groups.length > 0) {
       var groupRec: string[] = [];
-      groups.map((group) => {
-        groupRec.push(group.name);
-      });
+      groups
+        .filter((group) => group.name !== "Shelter Logo" && group.name !== "Shelter Text")
+        .map((group) => {
+          groupRec.push(group.name);
+        });
       selectGroupList(groupRec);
     }
 
@@ -421,8 +437,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
     if (currentIndex === 0) return;
 
     selectColorName("");
-    setCurrentIndex(currentIndex - 1);
-    selectGroup(groups[currentIndex - 1].id);
+    const newIndex = currentIndex - 1;
+    setCurrentIndex(newIndex);
+    if (newIndex < navGroups.length) {
+      selectGroup(navGroups[newIndex].id);
+    }
 
     if (items.filter((item) => item.type === 0).length === 0) {
       if (groups[groups.length - 1].name === "MODALITATE IMPRIMARE")
@@ -433,11 +452,14 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   };
 
   const handleRightClick = () => {
-    if (currentIndex === groups.length - 1) return;
+    if (currentIndex === navGroups.length) return;
 
     selectColorName("");
-    setCurrentIndex(currentIndex + 1);
-    selectGroup(groups[currentIndex + 1].id);
+    const newIndex = currentIndex + 1;
+    setCurrentIndex(newIndex);
+    if (newIndex < navGroups.length) {
+      selectGroup(navGroups[newIndex].id);
+    }
 
     if (items.filter((item) => item.type === 0).length === 0) {
       if (groups[groups.length - 1].name === "MODALITATE IMPRIMARE")
@@ -491,7 +513,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   const containerStyles = {
     overflow: "auto",
     width: "100%",
-    height: !selectedTrayPreviewOpenButton ? "420px" : "70px",
+    height: !selectedTrayPreviewOpenButton ? (isFinalStep ? "650px" : "1060px") : "750px",
   };
   const getShelterPanelCount = (sizeName: string): number | null => {
     const match = sizeName.match(/(\d+)/);
@@ -577,6 +599,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
       {!isMobile && (
         <>
           <CustomizePanelsButton
+            selected={!!selectedPersonalize}
             onClick={() => setSelectedPersonalize(!selectedPersonalize)}
           >
             {"Customize Panels"}
@@ -596,11 +619,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
         className="animate-wrapper-0"
         style={{
           position: "relative",
-          height: "37%",
+          // height: "10%",
           flexShrink: 0,
           display: "flex",
           flexDirection: "column",
-          // overflowY: "auto",
+          overflowY: "auto",
         }}
       >
         {/* Personalize A */}
@@ -674,11 +697,11 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
               <BottomBarStepLabel>
                 {"Select: "}
-                {groups[currentIndex]?.name}
+                {isFinalStep ? T._("Next Step", "Composer") : navGroups[currentIndex]?.name}
               </BottomBarStepLabel>
 
               <Tooltip
-                id={`tooltip-${groups[currentIndex]?.id}`}
+                id={`tooltip-${isFinalStep ? "next-step" : navGroups[currentIndex]?.id}`}
                 place="top"
                 style={{
                   zIndex: 9999,
@@ -689,8 +712,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
               />
 
               <BottomBarStepArrow
-                muted={currentIndex === groups.length - 1}
-                disabled={currentIndex === groups.length - 1}
+                muted={currentIndex === navGroups.length}
+                disabled={currentIndex === navGroups.length}
                 onClick={handleRightClick}
                 aria-label="Next"
               >
@@ -727,8 +750,35 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
             })}
         </List> */}
 
-          <div style={{ marginTop: 28 }} className={`animate-wrapper${isTrayOpen ? "-2 show" : ""}`}>
-            {selectedGroup &&
+          <div
+            style={
+              isFinalStep
+                ? { marginTop: 8, height: "auto", justifyContent: "flex-start" }
+                : { marginTop: 28 }
+            }
+            className={`animate-wrapper${isTrayOpen ? "-2 show" : ""}`}
+          >
+            {isFinalStep && !selectedTrayPreviewOpenButton && !isTrayOpen && (
+              <FinalStepPanel>
+                <FinalStepButton type="button" onClick={() => handlePdfClick()}>
+                  {T._("Download", "Composer")}
+                </FinalStepButton>
+                <FinalStepButton type="button" onClick={() => handleGetQuoteClick()}>
+                  {T._("Get a Quote", "Composer")}
+                </FinalStepButton>
+                <FinalStepButton
+                  type="button"
+                  onClick={() => {
+                    setSelectedPersonalize(true);
+                  }}
+                >
+                  {T._("Customize Panel", "Composer")}
+                </FinalStepButton>
+              </FinalStepPanel>
+            )}
+
+            {!isFinalStep &&
+              selectedGroup &&
               !selectedTrayPreviewOpenButton &&
               selectedGroup.steps.length > 0 &&
               !isTrayOpen && (
@@ -754,7 +804,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                 </>
               )}
 
-            {!selectedTrayPreviewOpenButton && !isTrayOpen && (
+            {!isFinalStep && !selectedTrayPreviewOpenButton && !isTrayOpen && (
               <div style={{ width: "100%" }}>
                 <div
                   style={{
