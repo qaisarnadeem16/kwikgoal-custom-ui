@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import { createPortal } from 'react-dom';
 import { TailSpin } from 'react-loader-spinner';
 import styled from 'styled-components/macro';
 
@@ -11,7 +12,7 @@ const LoadingBackground = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 12;
+	z-index: 9999;
 `;
 
 const LoadingContainer = styled.div`
@@ -22,13 +23,18 @@ const LoadingContainer = styled.div`
 	padding: 10px;
 `;
 
+// Portaled straight to document.body so it reliably covers the full
+// viewport even when rendered deep inside popups whose ancestors may set
+// a transform/filter/z-index (which would otherwise contain a plain
+// position:fixed element and clip or bury it).
 const LoadingOverlay: FC<{}> = () => {
-	return (
+	return createPortal(
 		<LoadingBackground>
 			<LoadingContainer>
 				<TailSpin color='#000000' height={48} width={48} />
 			</LoadingContainer>
-		</LoadingBackground>
+		</LoadingBackground>,
+		document.body
 	);
 };
 

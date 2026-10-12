@@ -36,6 +36,7 @@ import { PreviewContainer, BlurOverlay } from "./previewContainer";
 import TrayPreviewOpenButton from "./TrayPreviewOpenButton";
 import MenuTriggerButton from "./MenuTriggerButton";
 import ProgressBarLoadingOverlay from "./widgets/ProgressBarLoadingOverlay";
+import LoadingOverlay from "./widgets/LoadingOverlay";
 import Designer from "./layouts/Designer";
 import {
   GroupItem,
@@ -160,7 +161,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
   const { setIsLoading, isMobile } = useStore();
 
-  const { handlePdfClick, handleGetQuoteClick } = useFooterActions();
+  const { handlePdfClick, handleGetQuoteClick, pdfIsLoading } = useFooterActions();
 
   // Keep saved the ID and not the refereces, they will change on each update
   const [selectedGroupId, selectGroup] = useState<number | null>(null);
@@ -611,6 +612,8 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
   return (
     <>
+      {pdfIsLoading && <LoadingOverlay />}
+
       {viewerOverlayEl
         ? createPortal(viewerOverlayContent, viewerOverlayEl)
         : viewerOverlayContent}
@@ -1278,7 +1281,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
               alignItems: "flex-start",
               justifyContent: "center",
               overflowY: "auto",
-              padding: "12px",
+              // padding: "12px",
             }}
           >
             <div style={{ width: "100%" }}>

@@ -148,7 +148,7 @@ export const SupportedFormatsList = styled.span`
 
 export const ZakekeDesignerContainer = styled.div<{ isMobile?: boolean }>`
 	height: 35vh;
-	width: 97%;
+	// width: 97%;
 	overflow-y: auto;
 	position: relative;
 	display: flex;

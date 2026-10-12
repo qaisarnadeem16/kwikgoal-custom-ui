@@ -148,7 +148,7 @@ const MoveElementsButton = styled.button`
 const FieldRow = styled.div`
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-end;
     gap: 24px;
     width: 100%;
     box-sizing: border-box;
