@@ -235,7 +235,7 @@
 }
 
 .swiper {
-  width: 70vw !important;
+  /* width: 70vw !important; */
   height: 64px !important;
   padding: 0 28px !important;
   box-sizing: border-box;

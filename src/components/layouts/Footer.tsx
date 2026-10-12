@@ -8,12 +8,10 @@ import styled from 'styled-components/macro';
 import { ReactComponent as PdfSolid } from '../../assets/icons/file-pdf-solid.svg';
 import { ReactComponent as SaveSolid } from '../../assets/icons/save-solid.svg';
 import { ReactComponent as ShareSolid } from '../../assets/icons/share-alt-square-solid.svg';
-import { MessageDialog, QuestionDialog, useDialogManager } from '../dialog/Dialogs';
+import { QuestionDialog, useDialogManager } from '../dialog/Dialogs';
 import ErrorDialog from '../dialog/ErrorDialog';
-import PdfDialog from '../dialog/PdfDialog';
 //import ShareDialog from '../dialog/ShareDialog';
 import {
-	CustomQuotationConfirmMessage,
 	ExtensionFieldItem,
 	ExtensionFieldsContainer,
 	FooterContainer,
@@ -25,11 +23,9 @@ import {
 //import NumericInput from './NumericInput';
 //import NftDialog, { NftForm } from 'components/dialogs/NftDialog';
 //import useDropdown from 'hooks/useDropdown';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import LoadingOverlay from "../widgets/LoadingOverlay";
-// import QuotationFormDialog from '../dialog/QuanityDialog';
-
-import QuotationFormDialog from '../dialog/QuotationFormDialog';
+import { useFooterActions } from './useFooterActions';
 
 const PriceInfoTextContainer = styled.div`
 	font-size: 14px;
@@ -42,12 +38,11 @@ const OutOfStockTooltipContent = styled(TooltipContent)`
 const Footer = () => {
 	//const [openOutOfStockTooltip, closeOutOfStockTooltip, isOutOfStockTooltipVisible, Dropdown] = useDropdown();
 	const addToCartButtonRef = useRef<HTMLButtonElement>(null);
-	const [pdfIsLoading, setPdfIsLoading] = useState<Boolean>(false);
+	const { handlePdfClick, handleGetQuoteClick, pdfIsLoading } = useFooterActions();
 
 	const {
 		useLegacyScreenshot,
 		setCameraByName,
-		getPDF,
 		addToCart,
 		isAddToCartLoading,
 		sellerSettings,
@@ -58,18 +53,13 @@ const Footer = () => {
 		setQuantity,
 		eventMessages,
 		//additionalCustomProperties,
-		saveComposition,
-		createQuote,
 		nftSettings,
 		translations,
 		groups
 	} = useZakeke();
 
 	const {
-		setIsLoading,
 		priceFormatter,
-		isQuoteLoading,
-		setIsQuoteLoading,
 		isViewerMode,
 		isDraftEditor,
 		isEditorMode
@@ -171,76 +161,6 @@ const Footer = () => {
 
 	const handleSaveClick = async () => {
 		showDialog('save', <SaveDesignsDraftDialog onCloseClick={() => closeDialog('save')} />);
-	};
-
-	const handlePdfClick = async () => {
-		try {
-			setIsLoading(true);
-			setPdfIsLoading(true);
-			const url = await getPDF();
-			showDialog('pdf', <PdfDialog url={url} onCloseClick={() => closeDialog('pdf')} />);
-		} catch (ex) {
-			console.error(ex);
-			showError(T._('Failed PDF generation', 'Composer'));
-		} finally {
-			setPdfIsLoading(false);
-			setIsLoading(false);
-		}
-	};
-
-	const handleSubmitRequestQuote = async (formData: any) => {
-		console.log(formData,'formData');
-		
-		// let thereIsARequiredFormEmpty = formData?.some((form: any) => form.required && form.value === '');
-		// if (thereIsARequiredFormEmpty)
-		// 	showDialog(
-		// 		'error',
-		// 		<ErrorDialog
-		// 			error={T._(
-		// 				'Failed to send the quotation since there is at least 1 required field empty.',
-		// 				'Composer'
-		// 			)}
-		// 			onCloseClick={() => closeDialog('error')}
-		// 		/>
-		// 	);
-		// else
-			try {
-				closeDialog('request-quotation');
-				setIsQuoteLoading(true);
-				setCameraByName('buy_screenshot_camera', false, false);
-				await saveComposition();
-				await createQuote(formData);
-				showDialog(
-					'message',
-					<MessageDialog
-						windowDecorator={CustomQuotationConfirmMessage}
-						message={T._('Request for quotation sent successfully', 'Composer')}
-					/>
-				);
-				setIsQuoteLoading(false);
-			} catch (ex) {
-				console.error(ex);
-				setIsQuoteLoading(false);
-				showDialog(
-					'error',
-					<ErrorDialog
-						error={T._(
-							'An error occurred while sending request for quotation. Please try again.',
-							'Composer'
-						)}
-						onCloseClick={() => closeDialog('error')}
-					/>
-				);
-			}
-	};
-
-	const handleGetQuoteClick = async () => {
-		let rule = product?.quoteRule;
-		if (rule)
-			showDialog(
-				'request-quotation',
-				<QuotationFormDialog getQuoteRule={rule} onFormSubmit={handleSubmitRequestQuote} />
-			);
 	};
 
 	const isOutOfStock = false;

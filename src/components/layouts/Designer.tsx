@@ -82,12 +82,11 @@ const DesignerContainer = styled.div<{ isMobile?: boolean }>`
   width: 100%;
   padding: 24px 24px 32px;
   background-color: #ffffff;
-  height: 34em;
+ height: 43vh;
   overflow-y: auto;
   font-family: Roboto, sans-serif;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  overflow-y: auto;
 
   ${(props) =>
     props.isMobile &&
@@ -177,6 +176,32 @@ const PopupFooterRow = styled.div`
   margin-top: 24px;
 `;
 
+const MoveElementsOkButton = styled.button`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: 10px 40px;
+  border: none;
+  border-radius: 12px;
+  background-color: #cf3339;
+  color: #ffffff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #b32c31;
+  }
+`;
+
 const ArtworkSection = styled.div`
   width: 100%;
   margin-top: 22px;
@@ -207,10 +232,12 @@ const ArtworkPreviewColumn = styled.div`
   gap: 12px;
 `;
 
-const AddArtworkBox = styled.button`
+const AddArtworkBox = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   min-height: 200px;
   width: 100%;
   padding: 12px;
@@ -218,7 +245,6 @@ const AddArtworkBox = styled.button`
   border: none;
   border-radius: 8px;
   background-color: #f2f2f2;
-  cursor: pointer;
 `;
 
 const AddArtworkPillButton = styled.span`
@@ -237,6 +263,12 @@ const AddArtworkPillButton = styled.span`
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #cf3339;
+    color: #cf3339;
+  }
 
   svg {
     width: 16px;
@@ -270,6 +302,14 @@ const TextItemsGrid = styled.div`
   justify-items: center;
   width: 100%;
   margin-top: 20px;
+`;
+
+const TextItemsRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
 `;
 
 const RoundOutlineButton = styled.button<{ disabled?: boolean }>`
@@ -320,8 +360,9 @@ const ArtworkFooterLeft = styled.div`
 `;
 
 const AddTextPanel = styled.div`
-  margin-top: 22px;
-  width: 50%;
+  flex: 1 1 320px;
+  width: 100%;
+  max-width: 420px;
   box-sizing: border-box;
   padding: 20px 24px 24px;
   border-radius: 10px;
@@ -755,59 +796,6 @@ const Designer: FC<{
 
   ;
 
-  // Function to get the logo id
-  function getLogoId(productId: any) {
-    // Find the product with the given id
-    const product = finalVisibleAreas.find((item) => item.id === productId);
-
-    if (!product) {
-      return null; // Product not found
-    }
-
-    // Initialize the logo name based on product name
-    let logoName = '';
-    if (product.name === "Rear Panel") {
-      logoName = "Rear Panel Logo";
-    } else if (product.name === "Right Side Panel") {
-      logoName = "Side Logo Right";
-    } else if (product.name === "Left Side Panel") {
-      logoName = "Side Logo Left";
-    } else {
-      return null; // No corresponding logo for the product
-    }
-
-    // Find the logo product and return its id
-    const logoProduct = finalVisibleAreas.find((item) => item.name === logoName);
-    return logoProduct ? logoProduct.id : null;
-  }
-
-
-  function getTextId(productId: any) {
-    // Find the product with the given id
-    const product = finalVisibleAreas.find((item) => item.id === productId);
-
-    if (!product) {
-      return null; // Product not found
-    }
-
-    // Initialize the logo name based on product name
-    let logoName = '';
-    if (product.name === "Rear Panel Logo") {
-      logoName = "Rear Panel";
-    } else if (product.name === "Side Logo Right") {
-      logoName = "Right Side Panel";
-    } else if (product.name === "Side Logo Left") {
-      logoName = "Left Side Panel";
-    } else {
-      return null; // No corresponding logo for the product
-    }
-
-    // Find the logo product and return its id
-    const logoProduct = finalVisibleAreas.find((item) => item.name === logoName);
-    return logoProduct ? logoProduct.id : null;
-  }
-  console.log(getLogoId(actualAreaId)); // Outputs: 403940 (or the respective logo id)
-
 
   const handleAddTextClick = () => {
     setNewTextValue("");
@@ -825,19 +813,6 @@ const Designer: FC<{
     // Add the text item to the actual area
     addItemText({ text: newTextValue, fontFamily: newTextFontFamily }, actualAreaId);
 
-    // Get the logo ID corresponding to the actual area
-    const removeItemLogoId = getLogoId(actualAreaId);
-
-    if (removeItemLogoId) {
-      // Filter items that match the logo ID's areaId
-      const logoItems = items.filter((item) => item.areaId === removeItemLogoId);
-
-      // Iterate through and remove items
-      logoItems.forEach((logoItem) => {
-        removeItem(logoItem.guid);
-      });
-    }
-
     setIsAddingText(false);
   };
 
@@ -848,23 +823,16 @@ const Designer: FC<{
       <ImagesGalleryDialog
         onClose={() => closeDialog("add-image")}
         onImageSelected={(image: { imageID: number }) => {
-          console.log("image", image);
+          // Remove any existing image item(s) already occupying this area
+          // so picking a new image replaces it instead of stacking a second one.
+          const existingImageItems = items.filter(
+            (item) => item.areaId === actualAreaId && item.type === 1
+          );
+          existingImageItems.forEach((existingItem) => {
+            removeItem(existingItem.guid);
+          });
 
           addItemImage(image.imageID, actualAreaId);
-
-          const removeItemTextId = getTextId(actualAreaId);
-
-          if (removeItemTextId) {
-            // Filter items that match the logo ID's areaId
-            const logoItems = items.filter((item) => item.areaId === removeItemTextId);
-
-            // Iterate through and remove items
-            logoItems.forEach((logoItem) => {
-              removeItem(logoItem.guid);
-            });
-          }
-
-
 
           closeDialog("add-image");
         }}
@@ -895,6 +863,16 @@ const Designer: FC<{
             const image = await createImage(files[0], (progress: number) =>
               console.log(progress)
             );
+
+            // Remove any existing image item(s) already occupying this area
+            // so uploading a new image replaces it instead of stacking a second one.
+            const existingImageItems = items.filter(
+              (item) => item.areaId === actualAreaId && item.type === 1
+            );
+            existingImageItems.forEach((existingItem) => {
+              removeItem(existingItem.guid);
+            });
+
             addItemImage(image.imageID, actualAreaId);
             input.remove();
           } catch (ex) {
@@ -914,11 +892,6 @@ const Designer: FC<{
       document.body.appendChild(input);
       input.click();
     }
-  };
-
-  const handleAddArtworkClick = () => {
-    if (showGalleryButton) handleAddImageFromGalleryClick();
-    else if (showUploadButton) handleUploadImageClick(addItemImage, createImage);
   };
 
   const handleItemRemoved = (guid: string) => {
@@ -1059,9 +1032,83 @@ const Designer: FC<{
   const imageItemsFiltered = editableItemsFiltered.filter(
     (item) => item.type === 1
   ) as ImageItem[];
+
   const showMoveElementsGlobal = itemsFiltered.length > 0 && !allStaticElements;
   const hasArtworkCapability =
     imageItemsFiltered.length > 0 || showUploadButton || showGalleryButton;
+
+  const selectedArea = finalVisibleAreas.find((area) => area.id === actualAreaId);
+  const selectedAreaDescription = selectedArea
+    ? getTooltipDetail(selectedArea.name)
+    : "";
+
+  const addTextPanelNode = (
+    <AddTextPanel>
+      <AddTextHeader>
+        <AddTextTitle>{T._("Add Text", "Composer")}</AddTextTitle>
+        <AddTextCloseButton onClick={handleAddTextCancel} aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M4 4L20 20M20 4L4 20"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+          </svg>
+        </AddTextCloseButton>
+      </AddTextHeader>
+
+      <AddTextInput
+        placeholder="Input your text here"
+        value={newTextValue}
+        onChange={(e) => setNewTextValue(e.currentTarget.value)}
+        autoFocus
+      />
+
+      <AddTextFontLabel>{T._("Font", "Composer")}</AddTextFontLabel>
+      <AddTextFontRow>
+        <AddTextFontSelectWrap>
+          <AddTextFontSelect
+            value={newTextFontFamily}
+            onChange={(e) => setNewTextFontFamily(e.currentTarget.value)}
+          >
+            {fonts?.map((font) => (
+              <option key={font.name} value={font.name}>
+                {font.name}
+              </option>
+            ))}
+          </AddTextFontSelect>
+          <AddTextFontChevron>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M6 9L12 15L18 9"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </AddTextFontChevron>
+        </AddTextFontSelectWrap>
+
+        <AddTextConfirmButton
+          disabled={!newTextValue.trim()}
+          onClick={handleAddTextConfirm}
+          aria-label="Confirm"
+        >
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M4 12L10 18L20 6"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </AddTextConfirmButton>
+      </AddTextFontRow>
+    </AddTextPanel>
+  );
 
   return (
     <>
@@ -1071,7 +1118,9 @@ const Designer: FC<{
           <PopupHeader>
             <div>
               <PopupTitle>Custom Panels:</PopupTitle>
-              <PopupSubtitle>Select a Panel or Area of Shelter Frame</PopupSubtitle>
+              {selectedAreaDescription && (
+                <PopupSubtitle>{selectedAreaDescription}</PopupSubtitle>
+              )}
             </div>
             <PopupCloseButton onClick={togglePersonalize} aria-label="Close">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1160,30 +1209,20 @@ const Designer: FC<{
 
           <PanelSelectorRow>
             {finalVisibleAreas.map((area) => (
-              <React.Fragment key={area.id}>
-                <PillOption
-                  roundedRed
-                  style={{ margin: 0 }}
-                  selected={actualAreaId === area.id}
-                  onClick={() => {
-                    setActualAreaId(area.id);
-                    if (area) {
-                      updateSelectedFilter(area.id);
-                    }
-                  }}
-                  data-tooltip-id={`tooltip-${area.name.replace(/\s+/g, "-")}`}
-                  data-tooltip-variant="light"
-                  data-tooltip-content={getTooltipDetail(area.name)}
-                >
-                  {area.name}
-                </PillOption>
-
-                <Tooltip id={`tooltip-${area.name.replace(/\s+/g, "-")}`} place="top" style={{
-                  zIndex: 12,
-                  border: "1px solid #000",
-                  borderRadius: "4px",
-                }} />
-              </React.Fragment>
+              <PillOption
+                key={area.id}
+                roundedRed
+                style={{ margin: 0 }}
+                selected={actualAreaId === area.id}
+                onClick={() => {
+                  setActualAreaId(area.id);
+                  if (area) {
+                    updateSelectedFilter(area.id);
+                  }
+                }}
+              >
+                {area.name}
+              </PillOption>
             ))}
           </PanelSelectorRow>
 
@@ -1244,22 +1283,29 @@ const Designer: FC<{
             )}
 
           {hasArtworkCapability ? (
-            textItemsFiltered.map((item) => (
-              <ItemText
-                key={item.guid}
-                handleItemPropChange={handleItemPropChange}
-                item={item}
-                showMoveElementsButton={showMoveElementsGlobal}
-                onMoveElementsClick={() => setMoveElements(true)}
-              />
-            ))
+            <TextItemsRow>
+              {textItemsFiltered.map((item) => (
+                <ItemText
+                  key={item.guid}
+                  handleItemPropChange={handleItemPropChange}
+                  item={item}
+                  showMoveElementsButton={showMoveElementsGlobal}
+                  onMoveElementsClick={() => setMoveElements(true)}
+                />
+              ))}
+              {isAddingText && addTextPanelNode}
+            </TextItemsRow>
           ) : textItemsFiltered.length === 0 ? (
-            showAddTextButton && !isAddingText && (
+            showAddTextButton && (
               <AddTextCenteredWrap>
-                <RoundOutlineButton onClick={handleAddTextClick}>
-                  <Add />
-                  <span>{T._("Add Text", "Composer")}</span>
-                </RoundOutlineButton>
+                {isAddingText ? (
+                  addTextPanelNode
+                ) : (
+                  <RoundOutlineButton onClick={handleAddTextClick}>
+                    <Add />
+                    <span>{T._("Add Text", "Composer")}</span>
+                  </RoundOutlineButton>
+                )}
               </AddTextCenteredWrap>
             )
           ) : (
@@ -1274,81 +1320,17 @@ const Designer: FC<{
                 />
               ))}
 
-              {showAddTextButton && !isAddingText && (
-                <RoundOutlineButton onClick={handleAddTextClick}>
-                  <Add />
-                  <span>{T._("Add Text", "Composer")}</span>
-                </RoundOutlineButton>
+              {isAddingText ? (
+                addTextPanelNode
+              ) : (
+                showAddTextButton && (
+                  <RoundOutlineButton onClick={handleAddTextClick}>
+                    <Add />
+                    <span>{T._("Add Text", "Composer")}</span>
+                  </RoundOutlineButton>
+                )
               )}
             </TextItemsGrid>
-          )}
-
-          {isAddingText && (
-            <AddTextPanel>
-              <AddTextHeader>
-                <AddTextTitle>{T._("Add Text", "Composer")}</AddTextTitle>
-                <AddTextCloseButton onClick={handleAddTextCancel} aria-label="Close">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M4 4L20 20M20 4L4 20"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </AddTextCloseButton>
-              </AddTextHeader>
-
-              <AddTextInput
-                placeholder="Input your text here"
-                value={newTextValue}
-                onChange={(e) => setNewTextValue(e.currentTarget.value)}
-                autoFocus
-              />
-
-              <AddTextFontLabel>{T._("Font", "Composer")}</AddTextFontLabel>
-              <AddTextFontRow>
-                <AddTextFontSelectWrap>
-                  <AddTextFontSelect
-                    value={newTextFontFamily}
-                    onChange={(e) => setNewTextFontFamily(e.currentTarget.value)}
-                  >
-                    {fonts?.map((font) => (
-                      <option key={font.name} value={font.name}>
-                        {font.name}
-                      </option>
-                    ))}
-                  </AddTextFontSelect>
-                  <AddTextFontChevron>
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M6 9L12 15L18 9"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </AddTextFontChevron>
-                </AddTextFontSelectWrap>
-
-                <AddTextConfirmButton
-                  disabled={!newTextValue.trim()}
-                  onClick={handleAddTextConfirm}
-                  aria-label="Confirm"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M4 12L10 18L20 6"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </AddTextConfirmButton>
-              </AddTextFontRow>
-            </AddTextPanel>
           )}
 
           {hasArtworkCapability && (
@@ -1375,23 +1357,30 @@ const Designer: FC<{
                         />
                       ))
                     ) : (
-                      <AddArtworkBox onClick={handleAddArtworkClick}>
-                        <AddArtworkPillButton>
-                          <Add />
-                          <span>{T._("Add Artwork", "Composer")}</span>
-                        </AddArtworkPillButton>
+                      <AddArtworkBox>
+                        {showUploadButton && (
+                          <AddArtworkPillButton
+                            as="button"
+                            type="button"
+                            onClick={() => handleUploadImageClick(addItemImage, createImage)}
+                          >
+                            <Add />
+                            <span>{T._("Upload Image", "Composer")}</span>
+                          </AddArtworkPillButton>
+                        )}
+                        {showGalleryButton && (
+                          <AddArtworkPillButton
+                            as="button"
+                            type="button"
+                            onClick={handleAddImageFromGalleryClick}
+                          >
+                            <Add />
+                            <span>{T._("Choose from Gallery", "Composer")}</span>
+                          </AddArtworkPillButton>
+                        )}
                       </AddArtworkBox>
                     )}
                 </ArtworkPreviewColumn>
-
-                {imageItemsFiltered.length > 0 && (showUploadButton || showGalleryButton) && (
-                  <AddArtworkBox onClick={handleAddArtworkClick}>
-                    <AddArtworkPillButton>
-                      <Add />
-                      <span>{T._("Add Additional Artwork", "Composer")}</span>
-                    </AddArtworkPillButton>
-                  </AddArtworkBox>
-                )}
 
                 {showAddTextButton && !isAddingText && (
                   <ArtworkActionColumn>
@@ -1497,11 +1486,9 @@ const Designer: FC<{
 							<SearchMinusSolid />
 						</ZoomIconOut> */}
           {/* </IconsAndDesignerContainer> */}
-          <div style={{ position: "relative", top: "26px" }}>
-            <Button isFullWidth primary onClick={() => setMoveElements(false)}>
-              <span>{"OK"} </span>
-            </Button>
-          </div>
+          <MoveElementsOkButton onClick={() => setMoveElements(false)}>
+            {"OK"}
+          </MoveElementsOkButton>
         </ZakekeDesignerContainer>
       )}
     </>

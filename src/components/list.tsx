@@ -319,6 +319,8 @@ export const ColorFamilySection = styled.div`
     flex-direction: column;
     align-items: center;
     width: 100%;
+    flex: 1 1 100%;
+    box-sizing: border-box;
     padding: 12px 16px;
 `;
 
@@ -337,6 +339,8 @@ export const ColorSwatchRow = styled.div`
     align-items: flex-start;
     justify-content: center;
     gap: 16px;
+    width: 100%;
+    box-sizing: border-box;
 `;
 
 export const ColorSwatch = styled.button<{ selected?: boolean; bgColor?: string; bgImage?: string; small?: boolean }>`
@@ -355,7 +359,7 @@ export const ColorSwatch = styled.button<{ selected?: boolean; bgColor?: string;
     background-image: ${props => props.bgImage ? `url(${props.bgImage})` : 'none'};
     background-size: cover;
     background-position: center;
-    border: 1px solid #d9d9d9;
+    border: none;
     outline: ${props => props.selected ? '2px solid #1a1a1a' : 'none'};
     outline-offset: 2px;
 
@@ -443,8 +447,8 @@ export const ColorChip = styled.button<{ selected?: boolean; big?: boolean }>`
     padding: 0;
     border-radius: 10px;
     cursor: pointer;
-    background-color: ${props => props.selected ? 'transparent' : 'transparent'};
-    border: ${props => props.selected ? '2px solid #636363' : '1px solid #636363'};
+    background-color: transparent;
+    border: ${props => props.selected ? '2px solid #1a1a1a' : 'none'};
     outline: none;
 
     @media screen and (max-width: 568px) {

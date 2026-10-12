@@ -1,4 +1,5 @@
 import React, { FC, memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 
 // Styled component for the dropdown container
@@ -11,7 +12,10 @@ const DropdownContainer = styled.div<{ x: number; y: number; visible: boolean }>
 	border: 1px #ddd solid;
 	border-radius: 5px;
 	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
-	z-index: 3;
+	/* Rendered via a portal to document.body, so it now competes in the
+	   page's global stacking context (not just against local siblings) —
+	   it needs to beat every other overlay (menus, popups, loading screen). */
+	z-index: 3000;
 	visibility: hidden;
 
 	${(props) =>
@@ -117,22 +121,18 @@ const Dropdown: FC<{ buttonRef: HTMLElement; anchor: Anchor; alignment: Alignmen
 		if (dropdownPositionY + dropdownHeight > window.innerHeight) {
 			if (currentAnchor === 'bottom') {
 				[dropdownPositionX, dropdownPositionY] = getPosition('top', currentAlignment);
-				currentAnchor = 'right';
+				currentAnchor = 'top';
 			} else {
 				[dropdownPositionX, dropdownPositionY] = getPosition(currentAnchor, 'bottom');
 				currentAlignment = 'bottom';
 			}
 		}
 
-		if (dropdownPositionY + dropdownHeight > window.innerHeight) {
-			if (currentAnchor === 'bottom') {
-				[dropdownPositionX, dropdownPositionY] = getPosition('top', currentAlignment);
-				currentAnchor = 'right';
-			} else {
-				[dropdownPositionX, dropdownPositionY] = getPosition(currentAnchor, 'bottom');
-				currentAlignment = 'bottom';
-			}
-		}
+		// Clamp as a last resort so the dropdown always stays fully on-screen,
+		// even if the flips above still leave it short (e.g. a very tall
+		// picker on a short window).
+		dropdownPositionX = Math.min(Math.max(dropdownPositionX, 0), window.innerWidth - dropdownWidth);
+		dropdownPositionY = Math.min(Math.max(dropdownPositionY, 0), window.innerHeight - dropdownHeight);
 
 		setX(dropdownPositionX);
 		setY(dropdownPositionY);
@@ -140,7 +140,14 @@ const Dropdown: FC<{ buttonRef: HTMLElement; anchor: Anchor; alignment: Alignmen
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [el, anchor, alignment, dropdownRef.current]);
 
-	return (
+	// Rendered via a portal straight to document.body: a `position: fixed`
+	// element is positioned relative to the viewport only when none of its
+	// ancestors set a transform/filter/perspective/will-change (any of which
+	// creates a new containing block). Since this dropdown can be opened from
+	// deep inside popups that may have such ancestors, portaling to body
+	// guarantees the computed x/y (from getBoundingClientRect, which is
+	// always viewport-relative) line up with where it actually renders.
+	return createPortal(
 		<DropdownContainer
 			onClick={(e) => e.nativeEvent.stopPropagation()}
 			ref={dropdownRef}
@@ -149,7 +156,8 @@ const Dropdown: FC<{ buttonRef: HTMLElement; anchor: Anchor; alignment: Alignmen
 			visible={dropdownRef.current !== null}
 		>
 			{children}
-		</DropdownContainer>
+		</DropdownContainer>,
+		document.body
 	);
 };
 

@@ -147,8 +147,9 @@ export const SupportedFormatsList = styled.span`
 `;
 
 export const ZakekeDesignerContainer = styled.div<{ isMobile?: boolean }>`
-	height: 50vh;
+	height: 35vh;
 	width: 97%;
+	overflow-y: auto;
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -569,7 +570,7 @@ export const ToggleSwitchState = styled.span<{ active?: boolean }>`
 	transition: color 0.2s ease;
 `;
 
-export const CustomizePanelsButton = styled.button`
+export const CustomizePanelsButton = styled.button<{ selected?: boolean }>`
 	position: absolute;
 	right: 24px;
 	bottom: 24px;
@@ -578,19 +579,19 @@ export const CustomizePanelsButton = styled.button`
 	align-items: center;
 	justify-content: center;
 	padding: 12px 24px;
-	background-color: #ffffff;
-	border: 1px solid #1a1a1a;
+	background-color: ${(props) => (props.selected ? '#cf3339' : '#ffffff')};
+	border: 1px solid ${(props) => (props.selected ? '#cf3339' : '#1a1a1a')};
 	border-radius: 6px;
 	font-family: 'Roboto', sans-serif;
 	font-size: 14px;
 	font-weight: 500;
 	letter-spacing: 0.5px;
 	text-transform: uppercase;
-	color: #1a1a1a;
+	color: ${(props) => (props.selected ? '#ffffff' : '#1a1a1a')};
 	cursor: pointer;
 
 	&:hover {
-		background-color: #f2f2f2;
+		background-color: ${(props) => (props.selected ? '#b32c31' : '#f2f2f2')};
 	}
 
 	@media (max-width: 1024px) {
@@ -598,6 +599,40 @@ export const CustomizePanelsButton = styled.button`
 		bottom: 12px;
 		padding: 10px 16px;
 		font-size: 12px;
+	}
+`;
+
+export const FinalStepPanel = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	width: 100%;
+	padding: 8px 20px;
+	box-sizing: border-box;
+`;
+
+export const FinalStepButton = styled.button`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px 22px;
+	background-color: #ffffff;
+	border: 1px solid #1a1a1a;
+	border-radius: 12px;
+	font-family: 'Roboto', sans-serif;
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	color: #1a1a1a;
+	cursor: pointer;
+	white-space: nowrap;
+
+	&:hover {
+		border-color: #cf3339;
+		color: #cf3339;
 	}
 `;
 
