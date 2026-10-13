@@ -80,9 +80,9 @@ const DesignerContainer = styled.div<{ isMobile?: boolean }>`
   justify-content: center;
   user-select: none;
   width: 100%;
-  padding: 24px 24px 32px;
+  padding: 10px 24px 32px;
   background-color: #ffffff;
- height: 43vh;
+  height: 43vh;
   overflow-y: auto;
   font-family: Roboto, sans-serif;
   border-radius: 16px;
@@ -134,6 +134,15 @@ const PopupSubtitle = styled.p`
   color: #6b6b6b;
 `;
 
+const PopupHeaderActions = styled.div`
+  position: absolute;
+  top: 0;
+  right: 44px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
 const PopupCloseButton = styled.button`
   position: absolute;
   top: 0;
@@ -169,13 +178,6 @@ const PanelSelectorRow = styled.div`
   margin-bottom: 8px;
 `;
 
-const PopupFooterRow = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  margin-top: 24px;
-`;
-
 const MoveElementsOkButton = styled.button`
   position: absolute;
   top: 16px;
@@ -202,34 +204,12 @@ const MoveElementsOkButton = styled.button`
   }
 `;
 
-const ArtworkSection = styled.div`
-  width: 100%;
-  margin-top: 22px;
-`;
-
 const ArtworkLabel = styled.span`
   display: block;
   margin-bottom: 10px;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   color: #4a4a4a;
-`;
-
-const ArtworkGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 20px;
-  align-items: stretch;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const ArtworkPreviewColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 `;
 
 const AddArtworkBox = styled.div`
@@ -276,22 +256,14 @@ const AddArtworkPillButton = styled.span`
   }
 `;
 
-const ArtworkActionColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  width: 50%;
-`;
-
 const AddTextCenteredWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   min-height: 160px;
-  margin-top: 20px;
+  margin-top: 10px;
+  margin-bottom:40px;
 `;
 
 const TextItemsGrid = styled.div`
@@ -301,15 +273,8 @@ const TextItemsGrid = styled.div`
   align-items: start;
   justify-items: center;
   width: 100%;
-  margin-top: 20px;
-`;
-
-const TextItemsRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 20px;
-  width: 100%;
+  margin-top: 10px;
+  margin-bottom:40px;
 `;
 
 const RoundOutlineButton = styled.button<{ disabled?: boolean }>`
@@ -341,22 +306,33 @@ const RoundOutlineButton = styled.button<{ disabled?: boolean }>`
   }
 `;
 
-const ArtworkFooterGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 20px;
-  align-items: center;
-  margin-top: 20px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const ArtworkFooterLeft = styled.div`
+const PanelCustomizationRow = styled.div`
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+`;
+
+const PanelHalfColumn = styled.div`
+  flex: 1 1 0;
+  min-width: 260px;
+`;
+
+const PanelBelowRow = styled.div`
+  width: 100%;
+  margin-top: 16px;
+  margin-bottom:65px;
+`;
+
+const ArtworkActionRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
   gap: 12px;
+  width: 100%;
 `;
 
 const AddTextPanel = styled.div`
@@ -903,7 +879,13 @@ const Designer: FC<{
       setIsLoading(true);
       await setItemImageFromFile(item.guid, file);
     } catch (ex) {
-      console.error(ex);
+      showDialog(
+        "error",
+        <ErrorDialog
+          error={"Failed uploading image."}
+          onCloseClick={() => closeDialog("error")}
+        />
+      );
     } finally {
       setIsLoading(false);
     }
@@ -1122,6 +1104,11 @@ const Designer: FC<{
                 <PopupSubtitle>{selectedAreaDescription}</PopupSubtitle>
               )}
             </div>
+            {!isMobile && (
+              <PopupHeaderActions>
+                <Footer />
+              </PopupHeaderActions>
+            )}
             <PopupCloseButton onClick={togglePersonalize} aria-label="Close">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -1283,18 +1270,177 @@ const Designer: FC<{
             )}
 
           {hasArtworkCapability ? (
-            <TextItemsRow>
-              {textItemsFiltered.map((item) => (
-                <ItemText
-                  key={item.guid}
-                  handleItemPropChange={handleItemPropChange}
-                  item={item}
-                  showMoveElementsButton={showMoveElementsGlobal}
-                  onMoveElementsClick={() => setMoveElements(true)}
-                />
-              ))}
-              {isAddingText && addTextPanelNode}
-            </TextItemsRow>
+            <>
+              <PanelCustomizationRow>
+                <PanelHalfColumn>
+                  <ArtworkLabel>
+                    {imageItemsFiltered[0]?.name || T._("Artwork", "Composer")}
+                  </ArtworkLabel>
+
+                  {imageItemsFiltered.length > 0 ? (
+                    imageItemsFiltered.map((item, idx) => (
+                      <ItemImage
+                        uploadImgDisabled={
+                          copyrightMessage && copyrightMessage.additionalData.enabled
+                            ? !copyrightMandatoryCheckbox
+                            : false
+                        }
+                        key={item.guid}
+                        ref={idx === 0 ? primaryImageItemRef : undefined}
+                        handleItemPropChange={handleItemPropChange}
+                        item={item}
+                        currentTemplateArea={currentTemplateArea!}
+                      />
+                    ))
+                  ) : (
+                    <AddArtworkBox>
+                      {showUploadButton && (
+                        <AddArtworkPillButton
+                          as="button"
+                          type="button"
+                          onClick={() => handleUploadImageClick(addItemImage, createImage)}
+                        >
+                          <Add />
+                          <span>{T._("Upload Image", "Composer")}</span>
+                        </AddArtworkPillButton>
+                      )}
+                      {showGalleryButton && (
+                        <AddArtworkPillButton
+                          as="button"
+                          type="button"
+                          onClick={handleAddImageFromGalleryClick}
+                        >
+                          <Add />
+                          <span>{T._("Choose from Gallery", "Composer")}</span>
+                        </AddArtworkPillButton>
+                      )}
+                    </AddArtworkBox>
+                  )}
+
+                  {showUploadButton && (
+                    <SupportedFormatsList>
+                      {T._("Supported file formats:", "Composer") +
+                        " " +
+                        supportedFileFormats}
+                    </SupportedFormatsList>
+                  )}
+
+                  {copyrightMessage && copyrightMessage.visible && (
+                    <CopyrightMessage>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: copyrightMessage.description,
+                        }}
+                      />
+                      {copyrightMessage &&
+                        copyrightMessage.additionalData.enabled && (
+                          <CopyrightMandatoryMessageContainer>
+                            <CopyrightCheckbox
+                              type="checkbox"
+                              defaultChecked={copyrightMandatoryCheckbox}
+                              onClick={() => {
+                                setCopyrightMessageAccepted(
+                                  !copyrightMandatoryCheckbox
+                                );
+                                setCopyrightMandatoryCheckbox(
+                                  !copyrightMandatoryCheckbox
+                                );
+                              }}
+                            />
+                            <CopyrightMandatoryMessage
+                              dangerouslySetInnerHTML={{
+                                __html: copyrightMessage.additionalData.message,
+                              }}
+                            />
+                          </CopyrightMandatoryMessageContainer>
+                        )}
+                    </CopyrightMessage>
+                  )}
+                </PanelHalfColumn>
+
+                <PanelHalfColumn>
+                  {textItemsFiltered.length > 0 ? (
+                    textItemsFiltered.map((item) => (
+                      <ItemText
+                        key={item.guid}
+                        handleItemPropChange={handleItemPropChange}
+                        item={item}
+                        showMoveElementsButton={showMoveElementsGlobal}
+                        onMoveElementsClick={() => setMoveElements(true)}
+                      />
+                    ))
+                  ) : isAddingText ? (
+                    addTextPanelNode
+                  ) : (
+                    <ArtworkActionRow>
+                      {showAddTextButton && (
+                        <RoundOutlineButton onClick={handleAddTextClick}>
+                          <Add />
+                          <span>{T._("Add Text", "Composer")}</span>
+                        </RoundOutlineButton>
+                      )}
+                      {imageItemsFiltered.length > 0 && showUploadButton && (
+                        <RoundOutlineButton
+                          disabled={
+                            copyrightMessage && copyrightMessage.additionalData.enabled
+                              ? !copyrightMandatoryCheckbox
+                              : false
+                          }
+                          onClick={() => primaryImageItemRef.current?.openFileDialog()}
+                        >
+                          <span>{T._("Replace", "Composer")}</span>
+                        </RoundOutlineButton>
+                      )}
+                      {showMoveElementsGlobal && (
+                        <RoundOutlineButton onClick={() => setMoveElements(true)}>
+                          <Icon>
+                            <Arrows />
+                          </Icon>
+                          <span>{T._("Move elements", "Composer")}</span>
+                        </RoundOutlineButton>
+                      )}
+                    </ArtworkActionRow>
+                  )}
+                </PanelHalfColumn>
+              </PanelCustomizationRow>
+
+              {textItemsFiltered.length > 0 && (
+                <PanelBelowRow>
+                  {isAddingText ? (
+                    addTextPanelNode
+                  ) : (
+                    <ArtworkActionRow>
+                      {showAddTextButton && (
+                        <RoundOutlineButton onClick={handleAddTextClick}>
+                          <Add />
+                          <span>{T._("Add Text", "Composer")}</span>
+                        </RoundOutlineButton>
+                      )}
+                      {imageItemsFiltered.length > 0 && showUploadButton && (
+                        <RoundOutlineButton
+                          disabled={
+                            copyrightMessage && copyrightMessage.additionalData.enabled
+                              ? !copyrightMandatoryCheckbox
+                              : false
+                          }
+                          onClick={() => primaryImageItemRef.current?.openFileDialog()}
+                        >
+                          <span>{T._("Replace", "Composer")}</span>
+                        </RoundOutlineButton>
+                      )}
+                      {showMoveElementsGlobal && (
+                        <RoundOutlineButton onClick={() => setMoveElements(true)}>
+                          <Icon>
+                            <Arrows />
+                          </Icon>
+                          <span>{T._("Move elements", "Composer")}</span>
+                        </RoundOutlineButton>
+                      )}
+                    </ArtworkActionRow>
+                  )}
+                </PanelBelowRow>
+              )}
+            </>
           ) : textItemsFiltered.length === 0 ? (
             showAddTextButton && (
               <AddTextCenteredWrap>
@@ -1333,140 +1479,10 @@ const Designer: FC<{
             </TextItemsGrid>
           )}
 
-          {hasArtworkCapability && (
-            <ArtworkSection>
-              <ArtworkLabel>
-                {imageItemsFiltered[0]?.name || T._("Artwork", "Composer")}
-              </ArtworkLabel>
-
-              <ArtworkGrid>
-                <ArtworkPreviewColumn>
-                    {imageItemsFiltered.length > 0 ? (
-                      imageItemsFiltered.map((item, idx) => (
-                        <ItemImage
-                          uploadImgDisabled={
-                            copyrightMessage && copyrightMessage.additionalData.enabled
-                              ? !copyrightMandatoryCheckbox
-                              : false
-                          }
-                          key={item.guid}
-                          ref={idx === 0 ? primaryImageItemRef : undefined}
-                          handleItemPropChange={handleItemPropChange}
-                          item={item}
-                          currentTemplateArea={currentTemplateArea!}
-                        />
-                      ))
-                    ) : (
-                      <AddArtworkBox>
-                        {showUploadButton && (
-                          <AddArtworkPillButton
-                            as="button"
-                            type="button"
-                            onClick={() => handleUploadImageClick(addItemImage, createImage)}
-                          >
-                            <Add />
-                            <span>{T._("Upload Image", "Composer")}</span>
-                          </AddArtworkPillButton>
-                        )}
-                        {showGalleryButton && (
-                          <AddArtworkPillButton
-                            as="button"
-                            type="button"
-                            onClick={handleAddImageFromGalleryClick}
-                          >
-                            <Add />
-                            <span>{T._("Choose from Gallery", "Composer")}</span>
-                          </AddArtworkPillButton>
-                        )}
-                      </AddArtworkBox>
-                    )}
-                </ArtworkPreviewColumn>
-
-                {showAddTextButton && !isAddingText && (
-                  <ArtworkActionColumn>
-                    <RoundOutlineButton onClick={handleAddTextClick}>
-                      <Add />
-                      <span>{T._("Add Text", "Composer")}</span>
-                    </RoundOutlineButton>
-                  </ArtworkActionColumn>
-                )}
-              </ArtworkGrid>
-
-              <ArtworkFooterGrid>
-                <ArtworkFooterLeft>
-                  {imageItemsFiltered.length > 0 && showUploadButton && (
-                    <RoundOutlineButton
-                      disabled={
-                        copyrightMessage && copyrightMessage.additionalData.enabled
-                          ? !copyrightMandatoryCheckbox
-                          : false
-                      }
-                      onClick={() => primaryImageItemRef.current?.openFileDialog()}
-                    >
-                      <span>{T._("Replace", "Composer")}</span>
-                    </RoundOutlineButton>
-                  )}
-                  {showMoveElementsGlobal && textItemsFiltered.length === 0 && (
-                    <RoundOutlineButton onClick={() => setMoveElements(true)}>
-                      <Icon>
-                        <Arrows />
-                      </Icon>
-                      <span>{T._("Move elements", "Composer")}</span>
-                    </RoundOutlineButton>
-                  )}
-                </ArtworkFooterLeft>
-
-                {showUploadButton && (
-                  <SupportedFormatsList>
-                    {T._("Supported file formats:", "Composer") +
-                      " " +
-                      supportedFileFormats}
-                  </SupportedFormatsList>
-                )}
-              </ArtworkFooterGrid>
-
-              {copyrightMessage && copyrightMessage.visible && (
-                <CopyrightMessage>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: copyrightMessage.description,
-                    }}
-                  />
-                  {copyrightMessage &&
-                    copyrightMessage.additionalData.enabled && (
-                      <CopyrightMandatoryMessageContainer>
-                        <CopyrightCheckbox
-                          type="checkbox"
-                          defaultChecked={copyrightMandatoryCheckbox}
-                          onClick={() => {
-                            setCopyrightMessageAccepted(
-                              !copyrightMandatoryCheckbox
-                            );
-                            setCopyrightMandatoryCheckbox(
-                              !copyrightMandatoryCheckbox
-                            );
-                          }}
-                        />
-                        <CopyrightMandatoryMessage
-                          dangerouslySetInnerHTML={{
-                            __html: copyrightMessage.additionalData.message,
-                          }}
-                        />
-                      </CopyrightMandatoryMessageContainer>
-                    )}
-                </CopyrightMessage>
-              )}
-            </ArtworkSection>
-          )}
           {isMobile && (
             <CloseEditorButton onClick={onCloseClick}>
               {"OK"}
             </CloseEditorButton>
-          )}
-          {!isMobile && (
-            <PopupFooterRow>
-              <Footer />
-            </PopupFooterRow>
           )}
         </DesignerContainer>
       )}
