@@ -80,9 +80,9 @@ const DesignerContainer = styled.div<{ isMobile?: boolean }>`
   justify-content: center;
   user-select: none;
   width: 100%;
-  padding: 24px 24px 32px;
+  padding: 10px 24px 32px;
   background-color: #ffffff;
- height: 43vh;
+  height: 43vh;
   overflow-y: auto;
   font-family: Roboto, sans-serif;
   border-radius: 16px;
@@ -262,7 +262,8 @@ const AddTextCenteredWrap = styled.div`
   justify-content: center;
   width: 100%;
   min-height: 160px;
-  margin-top: 20px;
+  margin-top: 10px;
+  margin-bottom:40px;
 `;
 
 const TextItemsGrid = styled.div`
@@ -272,7 +273,8 @@ const TextItemsGrid = styled.div`
   align-items: start;
   justify-items: center;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 10px;
+  margin-bottom:40px;
 `;
 
 const RoundOutlineButton = styled.button<{ disabled?: boolean }>`
