@@ -151,11 +151,6 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
     items,
     product,
     isAreaVisible,
-    backgroundColor,
-    setBackgroundColor,
-    getMeshIDbyName,
-    hideMeshAndSaveState,
-    restoreMeshVisibility,
   } = useZakeke();
 
 
@@ -206,60 +201,18 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
   const [selectedFilteredAreas, setSelectedFilteredAreas] = useState<number>(0);
 
-  const [isBackgroundOn, setIsBackgroundOn] = useState<boolean>(false);
-  const originalBackgroundColorRef = useRef<string | null>(null);
+  // Grass visibility is a real Zakeke group ("Grass") with an "ON"/"OFF"
+  // option pair, selected the same way as any other attribute option —
+  // not a mesh to show/hide ourselves.
+  const grassGroup = groups.find((g) => g.name === "Grass");
+  const grassAttribute = grassGroup?.attributes.find((a) => a.code === "Grass");
+  const grassOnOption = grassAttribute?.options.find((o) => o.name === "ON" && o.enabled);
+  const grassOffOption = grassAttribute?.options.find((o) => o.name === "OFF" && o.enabled);
+  const isGrassOn = grassAttribute?.options.find((o) => o.selected)?.name === "ON";
 
-  // The flat backdrop color (setBackgroundColor) only paints the sky/skybox area.
-  // The ground/grass is a separate mesh in the scene, so we also have to find and
-  // hide it. We don't know its exact name in this GLB, so we try common ones.
-  const GROUND_MESH_NAME_CANDIDATES = [
-    "Ground", "ground", "Ground_Plane", "GroundPlane", "Ground Plane",
-    "Floor", "floor", "Floor_Plane", "FloorPlane",
-    "Grass", "grass", "Grass_Plane", "GrassPlane",
-    "Terrain", "terrain",
-    "Environment", "environment",
-  ];
-  const groundMeshIdsRef = useRef<string[] | null>(null);
-
-  const getGroundMeshIds = () => {
-    if (groundMeshIdsRef.current) return groundMeshIdsRef.current;
-
-    const foundIds: string[] = [];
-    GROUND_MESH_NAME_CANDIDATES.forEach((name) => {
-      const meshId = getMeshIDbyName(name);
-      if (meshId && !foundIds.includes(meshId)) foundIds.push(meshId);
-    });
-
-    if (foundIds.length === 0) {
-      console.warn(
-        "[Background toggle] Could not find a ground/grass mesh by any of the known candidate names. " +
-        "Check the model's actual mesh name in the scene and add it to GROUND_MESH_NAME_CANDIDATES."
-      );
-    } else {
-      console.log("[Background toggle] Ground mesh id(s) found:", foundIds);
-    }
-
-    groundMeshIdsRef.current = foundIds;
-    return foundIds;
-  };
-
-  const toggleBackground = () => {
-    const nextIsBackgroundOn = !isBackgroundOn;
-    const groundMeshIds = getGroundMeshIds();
-
-    if (nextIsBackgroundOn) {
-      // Remember the model's current background so it can be restored later
-      if (originalBackgroundColorRef.current === null) {
-        originalBackgroundColorRef.current = backgroundColor;
-      }
-      setBackgroundColor("#F2F2F2", 1);
-      groundMeshIds.forEach((meshId) => hideMeshAndSaveState(meshId));
-    } else {
-      setBackgroundColor(originalBackgroundColorRef.current ?? backgroundColor, 0);
-      groundMeshIds.forEach((meshId) => restoreMeshVisibility(meshId));
-    }
-
-    setIsBackgroundOn(nextIsBackgroundOn);
+  const toggleGrass = () => {
+    const target = isGrassOn ? grassOffOption : grassOnOption;
+    if (target) selectOption(target.id);
   };
 
 
@@ -297,8 +250,13 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
   // Panels flow, but shouldn't be reachable as their own steps in the main
   // step-by-step sequence — the Kwik Goal logo is managed automatically
   // based on what the customer adds there, not chosen directly here.
+  // "Grass" is hidden entirely from the step sequence — it's controlled by
+  // the grass on/off toggle under the zoom controls instead.
   const navGroups = groups.filter(
-    (group) => group.name !== "Shelter Logo" && group.name !== "Shelter Text"
+    (group) =>
+      group.name !== "Shelter Logo" &&
+      group.name !== "Shelter Text" &&
+      group.name !== "Grass"
   );
   const isFinalStep = currentIndex === navGroups.length;
 
@@ -344,7 +302,12 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
     if (groups.length > 0) {
       var groupRec: string[] = [];
       groups
-        .filter((group) => group.name !== "Shelter Logo" && group.name !== "Shelter Text")
+        .filter(
+          (group) =>
+            group.name !== "Shelter Logo" &&
+            group.name !== "Shelter Text" &&
+            group.name !== "Grass"
+        )
         .map((group) => {
           groupRec.push(group.name);
         });
@@ -546,9 +509,9 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
       {!isMobile && !isTrayOpen ? (
         <ViewerControlsPanel>
           <ViewerControlGroup>
-            <ViewerControlLabel active={isBackgroundOn}>View</ViewerControlLabel>
+            <ViewerControlLabel active={isGrassOn}>View</ViewerControlLabel>
             <ZoomButtonStack>
-              <ZoomButton active={isBackgroundOn} onClick={zoomIn} aria-label="Zoom in">
+              <ZoomButton active={isGrassOn} onClick={zoomIn} aria-label="Zoom in">
                 {/* <SearchPlusSolid /> */}
                 <svg width="28" height="28" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clip-path="url(#clip0_2_16)">
@@ -562,7 +525,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                   </defs>
                 </svg>
               </ZoomButton>
-              <ZoomButton active={isBackgroundOn} onClick={zoomOut} aria-label="Zoom out">
+              <ZoomButton active={isGrassOn} onClick={zoomOut} aria-label="Zoom out">
                 {/* <SearchMinusSolid /> */}
                 <svg width="28" height="28" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clip-path="url(#clip0_2_20)">
@@ -579,18 +542,18 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
             </ZoomButtonStack>
           </ViewerControlGroup>
 
-          {/* <ViewerControlGroup>
-            <ViewerControlLabel active={isBackgroundOn}>Background</ViewerControlLabel>
+          <ViewerControlGroup>
+            <ViewerControlLabel active={isGrassOn}>Grass</ViewerControlLabel>
             <ToggleSwitchWrap>
               <ToggleSwitch
-                isOn={isBackgroundOn}
-                onClick={toggleBackground}
-                aria-label="Toggle background"
-                aria-pressed={isBackgroundOn}
+                isOn={isGrassOn}
+                onClick={toggleGrass}
+                aria-label="Toggle grass"
+                aria-pressed={isGrassOn}
               />
-              <ToggleSwitchState active={isBackgroundOn}>{isBackgroundOn ? "On" : "Off"}</ToggleSwitchState>
+              <ToggleSwitchState active={isGrassOn}>{isGrassOn ? "On" : "Off"}</ToggleSwitchState>
             </ToggleSwitchWrap>
-          </ViewerControlGroup> */}
+          </ViewerControlGroup>
         </ViewerControlsPanel>
       ) : (
         ""
@@ -775,7 +738,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
                     setSelectedPersonalize(true);
                   }}
                 >
-                  {T._("Customize Panel", "Composer")}
+                  {T._("Customize Panels", "Composer")}
                 </FinalStepButton>
               </FinalStepPanel>
             )}

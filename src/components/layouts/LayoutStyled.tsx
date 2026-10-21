@@ -554,18 +554,20 @@ export const ToggleSwitch = styled.button<{ isOn?: boolean }>`
 		content: '';
 		position: absolute;
 		top: 3px;
-		left: ${(props) => (props.isOn ? "31px" : "3px")};
+		left: 3px;
 		width: 18px;
 		height: 18px;
 		border-radius: 50%;
-		background-color:${(props) => (props.isOn ? "#ffffff" : "#636363")};
-		transition: left 0.2s ease;
+		background-color: ${(props) => (props.isOn ? "#ffffff" : "#636363")};
+		transform: translateX(${(props) => (props.isOn ? "28px" : "0")});
+		transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+		will-change: transform;
 	}
 `;
 
 export const ToggleSwitchState = styled.span<{ active?: boolean }>`
 	font-size: 11px;
-	color: ${(props) => (props.active ? "#ffffff" : "#D9D9D9")};
+	color: ${(props) => (props.active ? "#ffffff" : "#5c5b5bff")};
 	text-transform: uppercase;
 	transition: color 0.2s ease;
 `;
