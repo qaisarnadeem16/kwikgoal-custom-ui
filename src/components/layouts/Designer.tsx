@@ -1373,12 +1373,6 @@ const Designer: FC<{
                     addTextPanelNode
                   ) : (
                     <ArtworkActionRow>
-                      {showAddTextButton && (
-                        <RoundOutlineButton onClick={handleAddTextClick}>
-                          <Add />
-                          <span>{T._("Add Text", "Composer")}</span>
-                        </RoundOutlineButton>
-                      )}
                       {imageItemsFiltered.length > 0 && showUploadButton && (
                         <RoundOutlineButton
                           disabled={
@@ -1389,6 +1383,12 @@ const Designer: FC<{
                           onClick={() => primaryImageItemRef.current?.openFileDialog()}
                         >
                           <span>{T._("Replace", "Composer")}</span>
+                        </RoundOutlineButton>
+                      )}
+                      {showAddTextButton && (
+                        <RoundOutlineButton onClick={handleAddTextClick}>
+                          <Add />
+                          <span>{T._("Add Text", "Composer")}</span>
                         </RoundOutlineButton>
                       )}
                       {showMoveElementsGlobal && (
@@ -1410,12 +1410,6 @@ const Designer: FC<{
                     addTextPanelNode
                   ) : (
                     <ArtworkActionRow>
-                      {showAddTextButton && (
-                        <RoundOutlineButton onClick={handleAddTextClick}>
-                          <Add />
-                          <span>{T._("Add Text", "Composer")}</span>
-                        </RoundOutlineButton>
-                      )}
                       {imageItemsFiltered.length > 0 && showUploadButton && (
                         <RoundOutlineButton
                           disabled={
@@ -1426,6 +1420,12 @@ const Designer: FC<{
                           onClick={() => primaryImageItemRef.current?.openFileDialog()}
                         >
                           <span>{T._("Replace", "Composer")}</span>
+                        </RoundOutlineButton>
+                      )}
+                      {showAddTextButton && (
+                        <RoundOutlineButton onClick={handleAddTextClick}>
+                          <Add />
+                          <span>{T._("Add Text", "Composer")}</span>
                         </RoundOutlineButton>
                       )}
                       {showMoveElementsGlobal && (
