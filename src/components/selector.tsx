@@ -156,7 +156,7 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
 
   const { setIsLoading, isMobile } = useStore();
 
-  const { handlePdfClick, handleGetQuoteClick, pdfIsLoading } = useFooterActions();
+  const { handleGetQuoteClick, pdfIsLoading } = useFooterActions();
 
   // Keep saved the ID and not the refereces, they will change on each update
   const [selectedGroupId, selectGroup] = useState<number | null>(null);
@@ -726,9 +726,6 @@ const Selector: FunctionComponent<TrayPreviewOpenButton3DProps> = ({
           >
             {isFinalStep && !selectedTrayPreviewOpenButton && !isTrayOpen && (
               <FinalStepPanel>
-                <FinalStepButton type="button" onClick={() => handlePdfClick()}>
-                  {T._("Download", "Composer")}
-                </FinalStepButton>
                 <FinalStepButton type="button" onClick={() => handleGetQuoteClick()}>
                   {T._("Get a Quote", "Composer")}
                 </FinalStepButton>
